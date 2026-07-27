@@ -230,7 +230,7 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 2: Podgl¹d fali audio z regulacj¹ prêdkoœci ZOOM (z symbolem - i +) ---
+// --- WYŒWIETLACZ 2: Podgl¹d fali audio (Czyste wype³nienie bez bia³ych plam w œrodku) ---
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
 public:
@@ -273,7 +273,8 @@ public:
         int size = processor.waveformSize;
         int head = processor.waveformIndex.load();
 
-        g.setColour(juce::Colours::dodgerblue);
+        // Rysowanie fali jako zwarte, pó³przezroczyste pionowe s³upki (brak bia³ych plam w œrodku)
+        g.setColour(juce::Colours::dodgerblue.withAlpha(0.75f));
 
         for (int i = 0; i < size; ++i)
         {
@@ -287,26 +288,26 @@ public:
             float yMin = (h / 2.0f) - (minSample * (h * 0.4f));
             float yMax = (h / 2.0f) - (maxSample * (h * 0.4f));
 
-            g.drawVerticalLine(int(x), juce::jmin(yMin, yMax), juce::jmax(yMin, yMax));
+            // Rysujemy grubsz¹ liniê/s³upek ³¹cz¹c¹ minimum z maksimum dla danej próbki
+            g.drawLine(x, yMin, x, yMax, 1.5f);
         }
 
         g.setColour(juce::Colours::darkgrey);
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
 
-        // Rysowanie symboli "-" i "+" po bokach suwaka zoomu (przesuniêtych o 6px w dó³)
+        // Symbole "-" i "+" (znak "-" przesuniêty bli¿ej slidera o jedn¹ szerokoœæ symbolu)
         g.setFont(11.0f);
         int sliderRightX = getWidth() - 15;
-        int sliderY = getHeight() - 20 + 6; // +6px w dó³ zgodnie z proœb¹
+        int sliderY = getHeight() - 20 + 5;
 
-        g.drawText("-", sliderRightX - 105, sliderY, 12, 15, juce::Justification::centred);
-        g.drawText("+", sliderRightX + 10, sliderY, 12, 15, juce::Justification::centred);
+        g.drawText("-", sliderRightX - 92, sliderY, 12, 15, juce::Justification::centred); // Przesuniête w lewo o ~8px
+        g.drawText("+", sliderRightX + 3, sliderY, 12, 15, juce::Justification::centred);
     }
 
     void resized() override
     {
-        // Suwak szerszy o 30% (oryginalnie 65 -> ok. 85px) oraz przesuniêty o 6px w dó³
-        zoomSlider.setBounds(getWidth() - 95, getHeight() - 20 + 6, 85, 15);
+        zoomSlider.setBounds(getWidth() - 95, getHeight() - 20 + 5, 85, 15);
     }
 
 private:
