@@ -230,7 +230,7 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 2: Podgl¹d fali audio (Czyste wype³nienie bez bia³ych plam w œrodku) ---
+// --- WYŒWIETLACZ 2: Podgl¹d fali audio (czyste s³upki bez bia³ych plam w œrodku) ---
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
 public:
@@ -273,7 +273,6 @@ public:
         int size = processor.waveformSize;
         int head = processor.waveformIndex.load();
 
-        // Rysowanie fali jako zwarte, pó³przezroczyste pionowe s³upki (brak bia³ych plam w œrodku)
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.75f));
 
         for (int i = 0; i < size; ++i)
@@ -288,7 +287,6 @@ public:
             float yMin = (h / 2.0f) - (minSample * (h * 0.4f));
             float yMax = (h / 2.0f) - (maxSample * (h * 0.4f));
 
-            // Rysujemy grubsz¹ liniê/s³upek ³¹cz¹c¹ minimum z maksimum dla danej próbki
             g.drawLine(x, yMin, x, yMax, 1.5f);
         }
 
@@ -296,12 +294,12 @@ public:
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
 
-        // Symbole "-" i "+" (znak "-" przesuniêty bli¿ej slidera o jedn¹ szerokoœæ symbolu)
+        // Symbole "-" i "+" (znak "-" przesuniêty bli¿ej o kolejn¹ szerokoœæ symbolu)
         g.setFont(11.0f);
         int sliderRightX = getWidth() - 15;
         int sliderY = getHeight() - 20 + 5;
 
-        g.drawText("-", sliderRightX - 92, sliderY, 12, 15, juce::Justification::centred); // Przesuniête w lewo o ~8px
+        g.drawText("-", sliderRightX - 114, sliderY, 12, 15, juce::Justification::centred); // Przesuniêto bli¿ej suwaka
         g.drawText("+", sliderRightX + 3, sliderY, 12, 15, juce::Justification::centred);
     }
 
