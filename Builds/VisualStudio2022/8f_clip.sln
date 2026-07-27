@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio Version 17
+
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "8f_clip - VST3", "8f_clip_VST3.vcxproj", "{E5A7CE8C-1A94-9865-7FC4-12C4172C8B12}"
+	ProjectSection(ProjectDependencies) = postProject
+		{762BFAFF-DEE5-AE89-18CC-B44FA3D7C467} = {762BFAFF-DEE5-AE89-18CC-B44FA3D7C467}
+		{4BC1A519-0778-586C-1FDA-90BCFD64AB76} = {4BC1A519-0778-586C-1FDA-90BCFD64AB76}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "8f_clip - Shared Code", "8f_clip_SharedCode.vcxproj", "{762BFAFF-DEE5-AE89-18CC-B44FA3D7C467}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "8f_clip - VST3 Manifest Helper", "8f_clip_VST3ManifestHelper.vcxproj", "{4BC1A519-0778-586C-1FDA-90BCFD64AB76}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E5A7CE8C-1A94-9865-7FC4-12C4172C8B12}.Debug|x64.ActiveCfg = Debug|x64
+		{E5A7CE8C-1A94-9865-7FC4-12C4172C8B12}.Debug|x64.Build.0 = Debug|x64
+		{E5A7CE8C-1A94-9865-7FC4-12C4172C8B12}.Release|x64.ActiveCfg = Release|x64
+		{E5A7CE8C-1A94-9865-7FC4-12C4172C8B12}.Release|x64.Build.0 = Release|x64
+		{762BFAFF-DEE5-AE89-18CC-B44FA3D7C467}.Debug|x64.ActiveCfg = Debug|x64
+		{762BFAFF-DEE5-AE89-18CC-B44FA3D7C467}.Debug|x64.Build.0 = Debug|x64
+		{762BFAFF-DEE5-AE89-18CC-B44FA3D7C467}.Release|x64.ActiveCfg = Release|x64
+		{762BFAFF-DEE5-AE89-18CC-B44FA3D7C467}.Release|x64.Build.0 = Release|x64
+		{4BC1A519-0778-586C-1FDA-90BCFD64AB76}.Debug|x64.ActiveCfg = Debug|Win32
+		{4BC1A519-0778-586C-1FDA-90BCFD64AB76}.Debug|x64.Build.0 = Debug|Win32
+		{4BC1A519-0778-586C-1FDA-90BCFD64AB76}.Release|x64.ActiveCfg = Release|Win32
+		{4BC1A519-0778-586C-1FDA-90BCFD64AB76}.Release|x64.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
