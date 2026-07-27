@@ -162,7 +162,8 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     static float blockMax = 0.0f;
 
     // Im wy¿szy zoom, tym rzadszy zapis próbek, co daje bardzo powolny i gêsty ruch
-    int decimationTarget = juce::jlimit(4, 128, (int)(zoomVal * 32.0f));
+    // Odwrócenie kierunku: ruch w lewo (mniejsze wartoœci) daje wolniejszy ruch/zoom, ruch w prawo przyspiesza
+    int decimationTarget = juce::jlimit(4, 128, (int)((5.0f - zoomVal) * 32.0f));
 
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {

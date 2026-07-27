@@ -230,7 +230,7 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 2: Podgl¹d fali audio z suwakiem ZOOM w prawym dolnym rogu ---
+// --- WYŒWIETLACZ 2: Podgl¹d fali audio z regulacj¹ prêdkoœci ZOOM (z symbolem - i +) ---
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
 public:
@@ -293,12 +293,20 @@ public:
         g.setColour(juce::Colours::darkgrey);
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
+
+        // Rysowanie symboli "-" i "+" po bokach suwaka zoomu (przesuniêtych o 6px w dó³)
+        g.setFont(11.0f);
+        int sliderRightX = getWidth() - 15;
+        int sliderY = getHeight() - 20 + 6; // +6px w dó³ zgodnie z proœb¹
+
+        g.drawText("-", sliderRightX - 105, sliderY, 12, 15, juce::Justification::centred);
+        g.drawText("+", sliderRightX + 10, sliderY, 12, 15, juce::Justification::centred);
     }
 
     void resized() override
     {
-        // Malutki, dyskretny suwak w prawym dolnym rogu wyœwietlacza fali
-        zoomSlider.setBounds(getWidth() - 75, getHeight() - 20, 65, 15);
+        // Suwak szerszy o 30% (oryginalnie 65 -> ok. 85px) oraz przesuniêty o 6px w dó³
+        zoomSlider.setBounds(getWidth() - 95, getHeight() - 20 + 6, 85, 15);
     }
 
 private:
