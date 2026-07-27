@@ -123,8 +123,37 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
 bool _8f_clipAudioProcessor::hasEditor() const { return true; }
 juce::AudioProcessorEditor* _8f_clipAudioProcessor::createEditor() { return new _8f_clipAudioProcessorEditor(*this); }
-void _8f_clipAudioProcessor::getStateInformation(juce::MemoryBlock& destData) { juce::ignoreUnused(destData); }
-void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInBytes) { juce::ignoreUnused(data, sizeInBytes); }
+
+// --- NAPRAWIONE METODY DO ZAPISU I ODCZYTU STANU W DAW ---
+
+void _8f_clipAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+{
+    // Pobieramy obecny stan wszystkich parametrów z apvts
+    auto state = apvts.copyState();
+
+    // Tworzymy obiekt XML ze stanu
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+
+    // Zapisujemy XML do bloku pamiêci, który DAW zapisze w pliku projektu
+    copyXmlToBinary(*xml, destData);
+}
+
+void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+{
+    // Odczytujemy obiekt XML z bloku pamiêci dostarczonego przez DAW
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    // Jeœli odczyt siê powiód³ i typ siê zgadza, nadpisujemy obecny stan apvts
+    if (xmlState.get() != nullptr)
+    {
+        if (xmlState->hasTagName(apvts.state.getType()))
+        {
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        }
+    }
+}
+
+// ---------------------------------------------------------
 
 juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::createParameterLayout()
 {
