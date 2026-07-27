@@ -64,7 +64,8 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         buffer.clear(i, 0, buffer.getNumSamples());
 
     float gainDb = apvts.getRawParameterValue("GAIN")->load();
-    float clipPct = apvts.getRawParameterValue("CLIP")->load() / 100.0f;
+    float clipVal = apvts.getRawParameterValue("CLIP")->load();
+    float clipPct = 1.0f - (clipVal / 100.0f); // Odwrócona wartoœæ CLIP (0% = brak clippera, 100% = max clip)
     float softPct = apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
 
     float gainLinear = juce::Decibels::decibelsToGain(gainDb);
@@ -73,7 +74,6 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     float maxOutputMagnitude = 0.0f;
     int writeIdx = waveformIndex.load();
 
-    // Liczniki do wolniejszego zapisu fali (zamiast sztywnego modulo zale¿¹cego od SR)
     static int decimationCounter = 0;
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
@@ -100,7 +100,6 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
             channelData[sample] = output;
 
-            // Zapis z decymacj¹ (co 16. próbkê dla p³ynnego i wolnego ruchu fali)
             if (channel == 0) {
                 decimationCounter++;
                 if (decimationCounter >= 256) {
@@ -131,7 +130,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", -24.0f, 24.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 100.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f)); // Domyœlnie 0%
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     return { params.begin(), params.end() };
 }

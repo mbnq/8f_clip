@@ -12,11 +12,45 @@ public:
         setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::darkgrey);
         setColour(juce::Slider::thumbColourId, juce::Colours::darkgrey);
         setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colours::lightgrey);
+    }
 
-        // Widoczne wartoœci pod knobami
-        setColour(juce::Slider::textBoxTextColourId, juce::Colours::darkgrey);
-        setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::whitesmoke);
-        setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::lightgrey);
+    void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height,
+        float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
+        juce::Slider& slider) override
+    {
+        auto bounds = juce::Rectangle<int>(x, y, width, height).toFloat().reduced(6.0f);
+        auto radius = juce::jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
+        auto center = bounds.getCentre();
+        auto rx = center.x - radius;
+        auto ry = center.y - radius;
+        auto rw = radius * 2.0f;
+
+        g.setColour(findColour(juce::Slider::rotarySliderOutlineColourId));
+        g.drawEllipse(rx, ry, rw, rw, 5.0f);
+
+        auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+
+        juce::Path valueArc;
+        valueArc.addCentredArc(center.x, center.y, radius, radius, 0.0f, rotaryStartAngle, angle, true);
+        g.setColour(findColour(juce::Slider::rotarySliderFillColourId));
+        g.strokePath(valueArc, juce::PathStrokeType(5.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+
+        auto thumbWidth = 9.0f;
+        auto thumbPointX = center.x + (radius - 5.0f) * std::sin(angle);
+        auto thumbPointY = center.y - (radius - 5.0f) * std::cos(angle);
+        g.setColour(findColour(juce::Slider::thumbColourId));
+        g.fillEllipse(thumbPointX - thumbWidth / 2.0f, thumbPointY - thumbWidth / 2.0f, thumbWidth, thumbWidth);
+
+        auto text = slider.getTextFromValue(slider.getValue());
+        auto suffix = slider.getTextValueSuffix();
+        if (suffix.isNotEmpty() && !text.contains(suffix))
+        {
+            text += suffix;
+        }
+
+        g.setColour(juce::Colours::darkgrey);
+        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.drawText(text, bounds, juce::Justification::centred, true);
     }
 };
 
@@ -40,7 +74,8 @@ public:
         g.drawVerticalLine(int(w / 2), 0.0f, h);
         g.drawHorizontalLine(int(h / 2), 0.0f, w);
 
-        float clipPct = processor.apvts.getRawParameterValue("CLIP")->load() / 100.0f;
+        float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
+        float clipPct = 1.0f - (clipVal / 100.0f);
         float softPct = processor.apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
         float threshold = juce::jmax(0.01f, clipPct);
 
@@ -133,7 +168,7 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 3: Miernik wyjœciowy z poprawionym layoutem dB ---
+// --- WYŒWIETLACZ 3: Miernik wyjœciowy ---
 class OutputMeterComponent : public juce::Component, public juce::Timer
 {
 public:
@@ -188,15 +223,11 @@ public:
         g.setColour(juce::Colours::darkgrey);
         g.fillRect(meterX - 2.0f, 24.0f + (h - peakHeight), meterWidth + 4.0f, 2.0f);
 
-        // Oczyszczona miara w dB bez nak³adania
         g.setColour(juce::Colours::darkgrey);
         g.setFont(9.0f);
         g.drawText("0dB", getWidth() / 2 - 15, 8, 30, 10, juce::Justification::centred);
         g.drawText("-6", getWidth() / 2 - 15, (int)(24.0f + h * 0.5f - 5), 30, 10, juce::Justification::centred);
         g.drawText("-inf", getWidth() / 2 - 15, (int)(24.0f + h + 2), 30, 10, juce::Justification::centred);
-
-       //  g.setFont(10.0f);
-        // g.drawText("OUT", 2, getHeight() - 22, getWidth() - 4, 12, juce::Justification::centred);
     }
 
 private:
