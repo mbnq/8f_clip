@@ -195,8 +195,8 @@ public:
         g.drawText("-6", getWidth() / 2 - 15, (int)(24.0f + h * 0.5f - 5), 30, 10, juce::Justification::centred);
         g.drawText("-inf", getWidth() / 2 - 15, (int)(24.0f + h + 2), 30, 10, juce::Justification::centred);
 
-        g.setFont(10.0f);
-        g.drawText("OUT", 2, getHeight() - 13, getWidth() - 4, 12, juce::Justification::centred);
+       //  g.setFont(10.0f);
+        // g.drawText("OUT", 2, getHeight() - 22, getWidth() - 4, 12, juce::Justification::centred);
     }
 
 private:
