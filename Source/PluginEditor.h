@@ -119,7 +119,7 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 2: Podgl¹d fali audio z liniami progu clippera ---
+// --- WYŒWIETLACZ 2: Podgl¹d fali audio ---
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
 public:
@@ -139,21 +139,17 @@ public:
         float w = (float)getWidth();
         float h = (float)getHeight();
 
-        // Pobranie wartoœci progu clippera (zgodnie z logik¹ procesora)
         float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
         float clipPct = 1.0f - (clipVal / 100.0f);
         float threshold = juce::jmax(0.01f, clipPct);
 
-        // Obliczenie pozycji Y dla górnego i dolnego progu clippera na wykresie fali
         float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
         float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
 
-        // Rysowanie subtelnych, pomarañczowych linii limitera/clippera
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.6f));
         g.drawLine(0.0f, posThresholdY, w, posThresholdY, 1.0f);
         g.drawLine(0.0f, negThresholdY, w, negThresholdY, 1.0f);
 
-        // Rysowanie samej fali audio
         juce::Path wavePath;
         int size = processor.waveformSize;
         int head = processor.waveformIndex.load();
@@ -270,11 +266,13 @@ private:
     juce::Slider gainSlider;
     juce::Slider clipSlider;
     juce::Slider softnessSlider;
+    juce::Slider osSlider; // Dodany Knob Oversamplingu
 
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     std::unique_ptr<SliderAttachment> gainAttachment;
     std::unique_ptr<SliderAttachment> clipAttachment;
     std::unique_ptr<SliderAttachment> softnessAttachment;
+    std::unique_ptr<SliderAttachment> osAttachment; // Dodany za³¹cznik
 
     TransferGraphComponent transferGraph;
     WaveformDisplayComponent waveformDisplay;

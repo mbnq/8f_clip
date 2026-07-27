@@ -15,9 +15,26 @@ _8f_clipAudioProcessor::_8f_clipAudioProcessor()
 #endif
 {
     waveformHistory.resize(waveformSize, 0.0f);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        oversamplers[i] = std::make_unique<juce::dsp::Oversampling<float>>(
+            2,
+            i + 1,
+            juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR,
+            true
+        );
+    }
+
+    // Zaczynamy nas³uchiwaæ zmian ga³ki Oversamplingu
+    apvts.addParameterListener("OS", this);
 }
 
-_8f_clipAudioProcessor::~_8f_clipAudioProcessor() {}
+_8f_clipAudioProcessor::~_8f_clipAudioProcessor()
+{
+    // Odpinamy listenera przy zamykaniu wtyczki
+    apvts.removeParameterListener("OS", this);
+}
 
 const juce::String _8f_clipAudioProcessor::getName() const { return JucePlugin_Name; }
 bool _8f_clipAudioProcessor::acceptsMidi() const { return false; }
@@ -29,7 +46,22 @@ int _8f_clipAudioProcessor::getCurrentProgram() { return 0; }
 void _8f_clipAudioProcessor::setCurrentProgram(int index) { juce::ignoreUnused(index); }
 const juce::String _8f_clipAudioProcessor::getProgramName(int index) { juce::ignoreUnused(index); return {}; }
 void _8f_clipAudioProcessor::changeProgramName(int index, const juce::String& newName) { juce::ignoreUnused(index, newName); }
-void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) { juce::ignoreUnused(sampleRate, samplesPerBlock); }
+
+void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    for (auto& os : oversamplers)
+    {
+        os->initProcessing(samplesPerBlock);
+        os->reset();
+    }
+
+    int osMode = apvts.getRawParameterValue("OS")->load();
+    if (osMode > 0)
+        setLatencySamples(oversamplers[osMode - 1]->getLatencyInSamples());
+    else
+        setLatencySamples(0); // Gwarancja absolutnego zera na start, jeœli wy³¹czone
+}
+
 void _8f_clipAudioProcessor::releaseResources() {}
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -42,7 +74,6 @@ bool _8f_clipAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) 
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
         && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-
 #if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
@@ -65,22 +96,27 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     float gainDb = apvts.getRawParameterValue("GAIN")->load();
     float clipVal = apvts.getRawParameterValue("CLIP")->load();
-    float clipPct = 1.0f - (clipVal / 100.0f); // Odwrócona wartoœæ CLIP (0% = brak clippera, 100% = max clip)
+    float clipPct = 1.0f - (clipVal / 100.0f);
     float softPct = apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
+
+    int osMode = apvts.getRawParameterValue("OS")->load();
 
     float gainLinear = juce::Decibels::decibelsToGain(gainDb);
     float threshold = juce::jmax(0.01f, clipPct);
 
-    float maxOutputMagnitude = 0.0f;
-    int writeIdx = waveformIndex.load();
+    juce::dsp::AudioBlock<float> audioBlock(buffer);
+    juce::dsp::AudioBlock<float> processBlock = audioBlock;
 
-    static int decimationCounter = 0;
-
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // Gdy osMode == 0, dŸwiêk nawet nie wchodzi w procesor upsamplingu (Zero Latency)
+    if (osMode > 0)
     {
-        auto* channelData = buffer.getWritePointer(channel);
+        processBlock = oversamplers[osMode - 1]->processSamplesUp(audioBlock);
+    }
 
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+    for (int channel = 0; channel < processBlock.getNumChannels(); ++channel)
+    {
+        auto* channelData = processBlock.getChannelPointer(channel);
+        for (int sample = 0; sample < processBlock.getNumSamples(); ++sample)
         {
             float input = channelData[sample] * gainLinear;
             float output = input;
@@ -97,23 +133,38 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
                 if (softVal > 1.0f) softVal = 1.0f;
                 output = hardVal + softPct * (softVal - hardVal);
             }
-
             channelData[sample] = output;
+        }
+    }
 
+    if (osMode > 0)
+    {
+        oversamplers[osMode - 1]->processSamplesDown(audioBlock);
+    }
+
+    float maxOutputMagnitude = 0.0f;
+    int writeIdx = waveformIndex.load();
+    static int decimationCounter = 0;
+
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+    {
+        auto* channelData = buffer.getReadPointer(channel);
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
             if (channel == 0) {
                 decimationCounter++;
                 if (decimationCounter >= 256) {
                     decimationCounter = 0;
                     int safeIdx = writeIdx % waveformSize;
                     if (safeIdx >= 0 && safeIdx < (int)waveformHistory.size()) {
-                        waveformHistory[safeIdx] = output;
+                        waveformHistory[safeIdx] = channelData[sample];
                     }
                     writeIdx++;
                 }
             }
 
-            if (std::abs(output) > maxOutputMagnitude)
-                maxOutputMagnitude = std::abs(output);
+            if (std::abs(channelData[sample]) > maxOutputMagnitude)
+                maxOutputMagnitude = std::abs(channelData[sample]);
         }
     }
 
@@ -124,26 +175,16 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 bool _8f_clipAudioProcessor::hasEditor() const { return true; }
 juce::AudioProcessorEditor* _8f_clipAudioProcessor::createEditor() { return new _8f_clipAudioProcessorEditor(*this); }
 
-// --- NAPRAWIONE METODY DO ZAPISU I ODCZYTU STANU W DAW ---
-
 void _8f_clipAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    // Pobieramy obecny stan wszystkich parametrów z apvts
     auto state = apvts.copyState();
-
-    // Tworzymy obiekt XML ze stanu
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
-
-    // Zapisujemy XML do bloku pamiêci, który DAW zapisze w pliku projektu
     copyXmlToBinary(*xml, destData);
 }
 
 void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    // Odczytujemy obiekt XML z bloku pamiêci dostarczonego przez DAW
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
-
-    // Jeœli odczyt siê powiód³ i typ siê zgadza, nadpisujemy obecny stan apvts
     if (xmlState.get() != nullptr)
     {
         if (xmlState->hasTagName(apvts.state.getType()))
@@ -153,15 +194,32 @@ void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInByt
     }
 }
 
-// ---------------------------------------------------------
-
 juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", -24.0f, 24.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f)); // Domyœlnie 0%
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
+        juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
+
     return { params.begin(), params.end() };
+}
+
+// --- LOGIKA AKTUALIZACJI OPÓNIENIA DLA DAW W CZASIE RZECZYWISTYM ---
+void _8f_clipAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    if (parameterID == "OS")
+    {
+        int osMode = juce::roundToInt(newValue);
+
+        // Zg³aszamy nowe opóŸnienie w zale¿noœci od trybu, lub zrzucamy na p³askie '0'
+        int newLatency = (osMode > 0) ? oversamplers[osMode - 1]->getLatencyInSamples() : 0;
+
+        // Funkcja setLatencySamples informuje wewnêtrznie DAW (triggeruje updateHostDisplay),
+        // ¿e PDC musi zostaæ przeliczone.
+        setLatencySamples(newLatency);
+    }
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new _8f_clipAudioProcessor(); }

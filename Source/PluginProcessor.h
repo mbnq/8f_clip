@@ -1,10 +1,14 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <juce_dsp/juce_dsp.h>
 #include <atomic>
 #include <vector>
+#include <array>
 
-class _8f_clipAudioProcessor : public juce::AudioProcessor
+// Dziedziczymy dodatkowo po Listenerze, aby nas³uchiwaæ zmian ga³ki OS
+class _8f_clipAudioProcessor : public juce::AudioProcessor,
+    public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     _8f_clipAudioProcessor();
@@ -38,16 +42,20 @@ public:
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
+    // Metoda wywo³ywana automatycznie, gdy zmieni siê wartoœæ obserwowanego parametru
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
+
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     std::atomic<float> currentOutputLevel{ 0.0f };
 
-    // Sta³y, bezpieczny bufor fali audio
     static constexpr int waveformSize = 2048;
     std::vector<float> waveformHistory;
     std::atomic<int> waveformIndex{ 0 };
 
 private:
+    std::array<std::unique_ptr<juce::dsp::Oversampling<float>>, 4> oversamplers;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(_8f_clipAudioProcessor)
 };
