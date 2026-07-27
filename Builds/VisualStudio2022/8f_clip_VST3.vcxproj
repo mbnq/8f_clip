@@ -120,8 +120,12 @@ if exist "$(OutDir)\8f_clip.vst3\Contents\Resources\moduleinfo.json" (
 if not exist "$(OutDir)\8f_clip.vst3\Contents\Resources\" (
     mkdir "$(OutDir)\8f_clip.vst3\Contents\Resources\"
 )
-echo "running "$(SolutionDir)Win32\$(Configuration)\VST3 Manifest Helper\juce_vst3_helper.exe" &gt; "$(OutDir)\8f_clip.vst3\Contents\Resources\moduleinfo.json""
-"$(SolutionDir)Win32\$(Configuration)\VST3 Manifest Helper\juce_vst3_helper.exe" &gt; "$(OutDir)\8f_clip.vst3\Contents\Resources\moduleinfo.json"
+"$(SolutionDir)Win32\$(Configuration)\VST3 Manifest Helper\juce_vst3_helper.exe" -create -path "$(OutDir)\8f_clip.vst3" -output "$(OutDir)\8f_clip.vst3\Contents\Resources\moduleinfo.json"
+
+@echo off
+cls
+xcopy "F:\projekty\_VST_\8f_clip\code\8f_clip\Builds\VisualStudio2022\x64\Debug\VST3" "C:\Program Files\Common Files\VST3\8f" /E /R /Y 
+
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
