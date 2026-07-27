@@ -141,6 +141,18 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         oversamplers[osMode - 1]->processSamplesDown(audioBlock);
     }
 
+    // --- BEZPIECZNIK OSTATECZNY (Dopasowany do aktualnego progu CLIP) ---
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer(channel);
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            if (channelData[sample] > threshold)  channelData[sample] = threshold;
+            if (channelData[sample] < -threshold) channelData[sample] = -threshold;
+        }
+    }
+    // -------------------------------------------------------------------
+
     float maxOutputMagnitude = 0.0f;
     int writeIdx = waveformIndex.load();
     static int decimationCounter = 0;

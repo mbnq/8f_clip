@@ -16,7 +16,7 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     addAndMakeVisible(gainSlider);
     gainAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "GAIN", gainSlider);
 
-    // CLIP (Normalny ruch: start od góry, kręcenie w prawo od 0 do 2π)
+    // CLIP
     clipSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     clipSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     clipSlider.setTextValueSuffix(" %");
@@ -45,6 +45,9 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     addAndMakeVisible(waveformDisplay);
     addAndMakeVisible(outputMeter);
 
+    // Dodajemy interaktywne logo do widoku
+    addAndMakeVisible(logoComponent);
+
     setResizable(true, true);
     setResizeLimits(550, 400, 1200, 900);
     setSize(680, 500);
@@ -68,25 +71,11 @@ void _8f_clipAudioProcessorEditor::paint(juce::Graphics& g)
     int availableWidthForSliders = sliderArea.getWidth() - 100;
     int w = availableWidthForSliders / 4;
 
+    // Podpisy pod knobami
     g.drawText("GAIN", sliderArea.getX(), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
     g.drawText("CLIP", sliderArea.getX() + w, sliderArea.getY() - 15, w, 15, juce::Justification::centred);
     g.drawText("SOFTNESS", sliderArea.getX() + (w * 2), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
     g.drawText("OVERSAMPLING", sliderArea.getX() + (w * 3), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
-
-    // Blok logo w prawym dolnym rogu (szerokość 100 pikseli)
-    auto logoArea = juce::Rectangle<int>(sliderArea.getX() + (w * 4), sliderArea.getY(), 100, sliderArea.getHeight());
-
-    g.setColour(juce::Colours::darkgrey);
-
-    auto topPart = logoArea.removeFromTop(logoArea.getHeight() * 0.65f);
-
-    // Duże '8f'
-    g.setFont(juce::FontOptions(32.0f, juce::Font::bold));
-    g.drawText("8f", topPart, juce::Justification::centred, false);
-
-    // Podpis 'Oktafonika'
-    g.setFont(juce::FontOptions(11.0f));
-    g.drawText("Oktafonika", logoArea, juce::Justification::centred, false);
 }
 
 void _8f_clipAudioProcessorEditor::resized()
@@ -101,6 +90,9 @@ void _8f_clipAudioProcessorEditor::resized()
     clipSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
     softnessSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
     osSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
+
+    // Pozycjonowanie interaktywnego bloku logo w prawym dolnym rogu
+    logoComponent.setBounds(sliderArea.removeFromLeft(100));
 
     area.removeFromBottom(15);
 
