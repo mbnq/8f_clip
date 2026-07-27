@@ -14,7 +14,8 @@ _8f_clipAudioProcessor::_8f_clipAudioProcessor()
     apvts(*this, nullptr, "Parameters", createParameterLayout())
 #endif
 {
-    waveformHistory.resize(waveformSize, 0.0f);
+    waveMinHistory.resize(waveformSize, 0.0f);
+    waveMaxHistory.resize(waveformSize, 0.0f);
 
     for (int i = 0; i < 4; ++i)
     {
@@ -90,18 +91,18 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
     float gainDb = apvts.getRawParameterValue("GAIN")->load();
     float clipVal = apvts.getRawParameterValue("CLIP")->load();
     float clipPct = clipVal / 100.0f;
     float softPct = apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
+    float zoomVal = apvts.getRawParameterValue("ZOOM")->load(); // Pobieramy wartoœæ suwaka prêdkoœci/zoomu
 
     int osMode = (int)apvts.getRawParameterValue("OS")->load();
 
     float gainLinear = juce::Decibels::decibelsToGain(gainDb);
-    // Normalna skala: 0% = brak ciêcia (threshold = 1.0), 100% = max ciêcie (threshold = 0.01)
     float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
     juce::dsp::AudioBlock<float> audioBlock(buffer);
@@ -141,7 +142,7 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         oversamplers[osMode - 1]->processSamplesDown(audioBlock);
     }
 
-    // --- BEZPIECZNIK OSTATECZNY (Dopasowany do aktualnego progu CLIP) ---
+    // --- BEZPIECZNIK OSTATECZNY ---
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer(channel);
@@ -151,35 +152,48 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
             if (channelData[sample] < -threshold) channelData[sample] = -threshold;
         }
     }
-    // -------------------------------------------------------------------
+    // -----------------------------
 
+    // --- ZBIERANJE SZCZYTÓW STEROWANE PARAMETREM ZOOM ---
     float maxOutputMagnitude = 0.0f;
-    int writeIdx = waveformIndex.load();
+    int numSamples = buffer.getNumSamples();
     static int decimationCounter = 0;
+    static float blockMin = 0.0f;
+    static float blockMax = 0.0f;
+
+    // Im wy¿szy zoom, tym rzadszy zapis próbek, co daje bardzo powolny i gêsty ruch
+    int decimationTarget = juce::jlimit(4, 128, (int)(zoomVal * 32.0f));
 
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
         auto* channelData = buffer.getReadPointer(channel);
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        for (int sample = 0; sample < numSamples; ++sample)
         {
-            if (channel == 0) {
-                decimationCounter++;
-                if (decimationCounter >= 256) {
-                    decimationCounter = 0;
-                    int safeIdx = writeIdx % waveformSize;
-                    if (safeIdx >= 0 && safeIdx < (int)waveformHistory.size()) {
-                        waveformHistory[safeIdx] = channelData[sample];
-                    }
-                    writeIdx++;
-                }
-            }
+            float s = channelData[sample];
+            if (s < blockMin) blockMin = s;
+            if (s > blockMax) blockMax = s;
 
-            if (std::abs(channelData[sample]) > maxOutputMagnitude)
-                maxOutputMagnitude = std::abs(channelData[sample]);
+            if (std::abs(s) > maxOutputMagnitude)
+                maxOutputMagnitude = std::abs(s);
+
+            decimationCounter++;
+            if (decimationCounter >= decimationTarget)
+            {
+                decimationCounter = 0;
+                int writeIdx = waveformIndex.load() % waveformSize;
+                if (writeIdx >= 0 && writeIdx < waveformSize)
+                {
+                    waveMinHistory[writeIdx] = blockMin;
+                    waveMaxHistory[writeIdx] = blockMax;
+                }
+                waveformIndex.store(waveformIndex.load() + 1);
+                blockMin = 0.0f;
+                blockMax = 0.0f;
+            }
         }
     }
+    // ----------------------------------------------------
 
-    waveformIndex.store(writeIdx);
     currentOutputLevel.store(maxOutputMagnitude);
 }
 
@@ -209,10 +223,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", -24.0f, 24.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f)); // Domyœlnie 0% (brak ciêcia)
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
         juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
+    // Dodany parametr ZOOM steruj¹cy prêdkoœci¹/gêstoœci¹ oscyloskopu (zakres od 1.0 do 4.0, domyœlnie 2.5)
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 1.0f, 4.0f, 2.5f));
 
     return { params.begin(), params.end() };
 }

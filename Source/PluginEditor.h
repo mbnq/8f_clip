@@ -101,8 +101,6 @@ public:
     {
         auto area = getLocalBounds().reduced(20);
         closeButton.setBounds(area.removeFromBottom(30).reduced(50, 0));
-
-        // Podniesiony link Bandcamp, ¿eby pasowa³ do nowej linii tekstu
         bandcampButton.setBounds(20, 152, getWidth() - 40, 20);
     }
 
@@ -153,7 +151,7 @@ public:
                     aboutBox->setComponentID("AboutBox");
 
                     int boxWidth = 360;
-                    int boxHeight = 235; // Nieco zoptymalizowana wysokoœæ okienka
+                    int boxHeight = 235;
 
                     int x = (parent->getWidth() - boxWidth) / 2;
                     int y = (parent->getHeight() - boxHeight) / 2;
@@ -232,11 +230,20 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 2: Podgl¹d fali audio ---
+// --- WYŒWIETLACZ 2: Podgl¹d fali audio z suwakiem ZOOM w prawym dolnym rogu ---
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
 public:
-    WaveformDisplayComponent(_8f_clipAudioProcessor& p) : processor(p) { startTimerHz(25); }
+    WaveformDisplayComponent(_8f_clipAudioProcessor& p) : processor(p)
+    {
+        zoomSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+        zoomSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        addAndMakeVisible(zoomSlider);
+        zoomAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processor.apvts, "ZOOM", zoomSlider);
+
+        startTimerHz(30);
+    }
+
     void timerCallback() override { repaint(); }
 
     void paint(juce::Graphics& g) override
@@ -263,34 +270,41 @@ public:
         g.drawLine(0.0f, posThresholdY, w, posThresholdY, 1.0f);
         g.drawLine(0.0f, negThresholdY, w, negThresholdY, 1.0f);
 
-        juce::Path wavePath;
         int size = processor.waveformSize;
         int head = processor.waveformIndex.load();
+
+        g.setColour(juce::Colours::dodgerblue);
 
         for (int i = 0; i < size; ++i)
         {
             int idx = (head + i) % size;
-            if (idx < 0 || idx >= (int)processor.waveformHistory.size())
-                continue;
+            if (idx < 0 || idx >= size) continue;
 
-            float sample = processor.waveformHistory[idx];
+            float minSample = processor.waveMinHistory[idx];
+            float maxSample = processor.waveMaxHistory[idx];
+
             float x = ((float)i / (float)size) * w;
-            float y = (h / 2.0f) - (sample * (h * 0.4f));
+            float yMin = (h / 2.0f) - (minSample * (h * 0.4f));
+            float yMax = (h / 2.0f) - (maxSample * (h * 0.4f));
 
-            if (i == 0) wavePath.startNewSubPath(x, y);
-            else wavePath.lineTo(x, y);
+            g.drawVerticalLine(int(x), juce::jmin(yMin, yMax), juce::jmax(yMin, yMax));
         }
-
-        g.setColour(juce::Colours::dodgerblue);
-        g.strokePath(wavePath, juce::PathStrokeType(1.5f));
 
         g.setColour(juce::Colours::darkgrey);
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
     }
 
+    void resized() override
+    {
+        // Malutki, dyskretny suwak w prawym dolnym rogu wyœwietlacza fali
+        zoomSlider.setBounds(getWidth() - 75, getHeight() - 20, 65, 15);
+    }
+
 private:
     _8f_clipAudioProcessor& processor;
+    juce::Slider zoomSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> zoomAttachment;
 };
 
 // --- WYŒWIETLACZ 3: Miernik wyjœciowy ---

@@ -6,7 +6,6 @@
 #include <vector>
 #include <array>
 
-// Dziedziczymy dodatkowo po Listenerze, aby nas³uchiwaæ zmian ga³ki OS
 class _8f_clipAudioProcessor : public juce::AudioProcessor,
     public juce::AudioProcessorValueTreeState::Listener
 {
@@ -42,7 +41,6 @@ public:
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
-    // Metoda wywo³ywana automatycznie, gdy zmieni siê wartoœæ obserwowanego parametru
     void parameterChanged(const juce::String& parameterID, float newValue) override;
 
     juce::AudioProcessorValueTreeState apvts;
@@ -50,8 +48,10 @@ public:
 
     std::atomic<float> currentOutputLevel{ 0.0f };
 
-    static constexpr int waveformSize = 2048;
-    std::vector<float> waveformHistory;
+    // Zwiêkszony bufor dla szerokiego zakresu regulacji prêdkoœci/zoomu
+    static constexpr int waveformSize = 4096;
+    std::vector<float> waveMinHistory;
+    std::vector<float> waveMaxHistory;
     std::atomic<int> waveformIndex{ 0 };
 
 private:
