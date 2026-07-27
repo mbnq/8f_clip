@@ -146,19 +146,18 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         oversamplers[osMode - 1]->processSamplesDown(audioBlock);
     }
 
+    // Zamierzony maksymalny poziom wyjœcia przy danym CLIP i SOFTNESS
+    // (dok³adnie ten sam sufit co w formule waveshapera i na wykresie TRANSFER FUNCTION)
+    float ceiling = threshold + softPct * (1.0f - threshold);
+
     // --- BEZPIECZNIK OSTATECZNY ---
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            /*
-            if (channelData[sample] > threshold)  channelData[sample] = threshold;
-            if (channelData[sample] < -threshold) channelData[sample] = -threshold;
-            */
-
-            if (channelData[sample] > 1.0f)  channelData[sample] = 1.0f;
-            if (channelData[sample] < -1.0f) channelData[sample] = -1.0f;
+            if (channelData[sample] > ceiling)  channelData[sample] = ceiling;
+            if (channelData[sample] < -ceiling) channelData[sample] = -ceiling;
         }
     }
     // -----------------------------
