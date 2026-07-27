@@ -57,5 +57,10 @@ public:
 private:
     std::array<std::unique_ptr<juce::dsp::Oversampling<float>>, 4> oversamplers;
 
+    // Stan decymacji dla zbierania próbek waveformu — musi byæ per-instancja, nie static!
+    int decimationCounter = 0;
+    float blockMin = 0.0f;
+    float blockMax = 0.0f;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(_8f_clipAudioProcessor)
 };

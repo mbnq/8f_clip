@@ -55,6 +55,10 @@ void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
         os->reset();
     }
 
+    decimationCounter = 0;
+    blockMin = 0.0f;
+    blockMax = 0.0f;
+
     int osMode = (int)apvts.getRawParameterValue("OS")->load();
     if (osMode > 0)
         setLatencySamples(oversamplers[osMode - 1]->getLatencyInSamples());
@@ -148,8 +152,13 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         auto* channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
+            /*
             if (channelData[sample] > threshold)  channelData[sample] = threshold;
             if (channelData[sample] < -threshold) channelData[sample] = -threshold;
+            */
+
+            if (channelData[sample] > 1.0f)  channelData[sample] = 1.0f;
+            if (channelData[sample] < -1.0f) channelData[sample] = -1.0f;
         }
     }
     // -----------------------------
@@ -157,9 +166,7 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     // --- ZBIERANJE SZCZYTÓW STEROWANE PARAMETREM ZOOM ---
     float maxOutputMagnitude = 0.0f;
     int numSamples = buffer.getNumSamples();
-    static int decimationCounter = 0;
-    static float blockMin = 0.0f;
-    static float blockMax = 0.0f;
+    // decimationCounter, blockMin, blockMax s¹ teraz polami klasy — brak deklaracji tutaj
 
     // Im wy¿szy zoom, tym rzadszy zapis próbek, co daje bardzo powolny i gêsty ruch
     // Odwrócenie kierunku: ruch w lewo (mniejsze wartoœci) daje wolniejszy ruch/zoom, ruch w prawo przyspiesza
