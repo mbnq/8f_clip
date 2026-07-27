@@ -26,13 +26,11 @@ _8f_clipAudioProcessor::_8f_clipAudioProcessor()
         );
     }
 
-    // Zaczynamy nas³uchiwaæ zmian ga³ki Oversamplingu
     apvts.addParameterListener("OS", this);
 }
 
 _8f_clipAudioProcessor::~_8f_clipAudioProcessor()
 {
-    // Odpinamy listenera przy zamykaniu wtyczki
     apvts.removeParameterListener("OS", this);
 }
 
@@ -49,17 +47,18 @@ void _8f_clipAudioProcessor::changeProgramName(int index, const juce::String& ne
 
 void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    juce::ignoreUnused(sampleRate);
     for (auto& os : oversamplers)
     {
         os->initProcessing(samplesPerBlock);
         os->reset();
     }
 
-    int osMode = apvts.getRawParameterValue("OS")->load();
+    int osMode = (int)apvts.getRawParameterValue("OS")->load();
     if (osMode > 0)
         setLatencySamples(oversamplers[osMode - 1]->getLatencyInSamples());
     else
-        setLatencySamples(0); // Gwarancja absolutnego zera na start, jeœli wy³¹czone
+        setLatencySamples(0);
 }
 
 void _8f_clipAudioProcessor::releaseResources() {}
@@ -96,18 +95,18 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     float gainDb = apvts.getRawParameterValue("GAIN")->load();
     float clipVal = apvts.getRawParameterValue("CLIP")->load();
-    float clipPct = 1.0f - (clipVal / 100.0f);
+    float clipPct = clipVal / 100.0f;
     float softPct = apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
 
-    int osMode = apvts.getRawParameterValue("OS")->load();
+    int osMode = (int)apvts.getRawParameterValue("OS")->load();
 
     float gainLinear = juce::Decibels::decibelsToGain(gainDb);
-    float threshold = juce::jmax(0.01f, clipPct);
+    // Normalna skala: 0% = brak ciêcia (threshold = 1.0), 100% = max ciêcie (threshold = 0.01)
+    float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
     juce::dsp::AudioBlock<float> audioBlock(buffer);
     juce::dsp::AudioBlock<float> processBlock = audioBlock;
 
-    // Gdy osMode == 0, dŸwiêk nawet nie wchodzi w procesor upsamplingu (Zero Latency)
     if (osMode > 0)
     {
         processBlock = oversamplers[osMode - 1]->processSamplesUp(audioBlock);
@@ -198,7 +197,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", -24.0f, 24.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f)); // Domyœlnie 0% (brak ciêcia)
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
         juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
@@ -206,18 +205,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
     return { params.begin(), params.end() };
 }
 
-// --- LOGIKA AKTUALIZACJI OPÓNIENIA DLA DAW W CZASIE RZECZYWISTYM ---
 void _8f_clipAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
     if (parameterID == "OS")
     {
         int osMode = juce::roundToInt(newValue);
-
-        // Zg³aszamy nowe opóŸnienie w zale¿noœci od trybu, lub zrzucamy na p³askie '0'
         int newLatency = (osMode > 0) ? oversamplers[osMode - 1]->getLatencyInSamples() : 0;
-
-        // Funkcja setLatencySamples informuje wewnêtrznie DAW (triggeruje updateHostDisplay),
-        // ¿e PDC musi zostaæ przeliczone.
         setLatencySamples(newLatency);
     }
 }

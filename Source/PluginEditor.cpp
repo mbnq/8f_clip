@@ -7,6 +7,7 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
 {
     setLookAndFeel(&jasnyStyl);
 
+    // GAIN
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     gainSlider.setTextValueSuffix(" dB");
@@ -15,14 +16,15 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     addAndMakeVisible(gainSlider);
     gainAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "GAIN", gainSlider);
 
+    // CLIP (Normalny ruch: start od góry, kręcenie w prawo od 0 do 2π)
     clipSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     clipSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     clipSlider.setTextValueSuffix(" %");
-    clipSlider.setRotaryParameters(0.0f,
-        juce::MathConstants<float>::pi * 2.0f, true);
+    clipSlider.setRotaryParameters(0.0f, juce::MathConstants<float>::pi * 2.0f, true);
     addAndMakeVisible(clipSlider);
     clipAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "CLIP", clipSlider);
 
+    // SOFTNESS
     softnessSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     softnessSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     softnessSlider.setTextValueSuffix(" %");
@@ -62,13 +64,29 @@ void _8f_clipAudioProcessorEditor::paint(juce::Graphics& g)
 
     auto area = getLocalBounds().reduced(15);
     auto sliderArea = area.removeFromBottom(100);
-    // Podział na 4 zamiast 3
-    int w = sliderArea.getWidth() / 4;
+
+    int availableWidthForSliders = sliderArea.getWidth() - 100;
+    int w = availableWidthForSliders / 4;
 
     g.drawText("GAIN", sliderArea.getX(), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
     g.drawText("CLIP", sliderArea.getX() + w, sliderArea.getY() - 15, w, 15, juce::Justification::centred);
     g.drawText("SOFTNESS", sliderArea.getX() + (w * 2), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
-    g.drawText("OVS", sliderArea.getX() + (w * 3), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
+    g.drawText("OVERSAMPLING", sliderArea.getX() + (w * 3), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
+
+    // Blok logo w prawym dolnym rogu (szerokość 100 pikseli)
+    auto logoArea = juce::Rectangle<int>(sliderArea.getX() + (w * 4), sliderArea.getY(), 100, sliderArea.getHeight());
+
+    g.setColour(juce::Colours::darkgrey);
+
+    auto topPart = logoArea.removeFromTop(logoArea.getHeight() * 0.65f);
+
+    // Duże '8f'
+    g.setFont(juce::FontOptions(32.0f, juce::Font::bold));
+    g.drawText("8f", topPart, juce::Justification::centred, false);
+
+    // Podpis 'Oktafonika'
+    g.setFont(juce::FontOptions(11.0f));
+    g.drawText("Oktafonika", logoArea, juce::Justification::centred, false);
 }
 
 void _8f_clipAudioProcessorEditor::resized()
@@ -76,13 +94,13 @@ void _8f_clipAudioProcessorEditor::resized()
     auto area = getLocalBounds().reduced(15);
 
     auto sliderArea = area.removeFromBottom(100);
-    // Podział na 4 zamiast 3
-    int sliderWidth = sliderArea.getWidth() / 4;
+    int availableWidthForSliders = sliderArea.getWidth() - 100;
+    int sliderWidth = availableWidthForSliders / 4;
 
     gainSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
     clipSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
     softnessSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
-    osSlider.setBounds(sliderArea.reduced(5));
+    osSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
 
     area.removeFromBottom(15);
 

@@ -30,6 +30,7 @@ public:
 
         auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
+        // Standardowe rysowanie ³uku dla wszystkich ga³ek zgodnie ze wskazówkami zegara
         juce::Path valueArc;
         valueArc.addCentredArc(center.x, center.y, radius, radius, 0.0f, rotaryStartAngle, angle, true);
         g.setColour(findColour(juce::Slider::rotarySliderFillColourId));
@@ -75,9 +76,9 @@ public:
         g.drawHorizontalLine(int(h / 2), 0.0f, w);
 
         float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
-        float clipPct = 1.0f - (clipVal / 100.0f);
+        float clipPct = clipVal / 100.0f;
         float softPct = processor.apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
-        float threshold = juce::jmax(0.01f, clipPct);
+        float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
         juce::Path p;
         int numPoints = 100;
@@ -140,8 +141,8 @@ public:
         float h = (float)getHeight();
 
         float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
-        float clipPct = 1.0f - (clipVal / 100.0f);
-        float threshold = juce::jmax(0.01f, clipPct);
+        float clipPct = clipVal / 100.0f;
+        float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
         float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
         float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
@@ -266,13 +267,13 @@ private:
     juce::Slider gainSlider;
     juce::Slider clipSlider;
     juce::Slider softnessSlider;
-    juce::Slider osSlider; // Dodany Knob Oversamplingu
+    juce::Slider osSlider;
 
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     std::unique_ptr<SliderAttachment> gainAttachment;
     std::unique_ptr<SliderAttachment> clipAttachment;
     std::unique_ptr<SliderAttachment> softnessAttachment;
-    std::unique_ptr<SliderAttachment> osAttachment; // Dodany za³¹cznik
+    std::unique_ptr<SliderAttachment> osAttachment;
 
     TransferGraphComponent transferGraph;
     WaveformDisplayComponent waveformDisplay;
