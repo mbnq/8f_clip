@@ -12,7 +12,7 @@ public:
         addAndMakeVisible(zoomSlider);
         zoomAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processor.apvts, "ZOOM", zoomSlider);
 
-        startTimerHz(30);
+        startTimerHz(100);
     }
 
     void timerCallback() override

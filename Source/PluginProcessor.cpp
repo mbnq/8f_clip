@@ -251,8 +251,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
         juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
-	// zoom slider for waveform display, range from 0.05 to 4.0, default 2.5
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 0.01f, 4.0f, 2.5f));
+	// zoom slider for waveform display, range from 0.05 to 4.0, default 0.1
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 0.01f, 0.1f, 2.5f));
 
     return { params.begin(), params.end() };
 }

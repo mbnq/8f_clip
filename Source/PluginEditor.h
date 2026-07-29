@@ -237,7 +237,7 @@ private:
 class OutputMeterComponent : public juce::Component, public juce::Timer
 {
 public:
-    OutputMeterComponent(_8f_clipAudioProcessor& p) : processor(p) { startTimerHz(30); }
+    OutputMeterComponent(_8f_clipAudioProcessor& p) : processor(p) { startTimerHz(100); }
 
     void timerCallback() override
     {
