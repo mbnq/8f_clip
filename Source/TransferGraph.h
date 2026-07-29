@@ -307,12 +307,15 @@ public:
         float x2R, y2R, x2L, y2L;
         getSoftnessPointCoords(threshold, softPct, w, h, x2R, y2R, x2L, y2L);
 
-        g.setColour(juce::Colours::limegreen);
+        // Kolor zale¿ny od wartoœci softness (> 0 = zielony, 0 lub mniej = niebieski)
+        juce::Colour softnessColor = (softVal > 0.0f) ? juce::Colours::limegreen : juce::Colours::dodgerblue;
+
+        g.setColour(softnessColor);
         g.fillEllipse(x2R - 6.0f, y2R - 6.0f, 12.0f, 12.0f);
         g.setColour(juce::Colours::white);
         g.fillEllipse(x2R - 3.0f, y2R - 3.0f, 6.0f, 6.0f);
 
-        g.setColour(juce::Colours::limegreen);
+        g.setColour(softnessColor);
         g.fillEllipse(x2L - 6.0f, y2L - 6.0f, 12.0f, 12.0f);
         g.setColour(juce::Colours::white);
         g.fillEllipse(x2L - 3.0f, y2L - 3.0f, 6.0f, 6.0f);
@@ -329,5 +332,5 @@ private:
     float initialSoftnessVal = 0.0f;
     juce::Point<int> dragMouseDownPos;
 
-    static constexpr float margin = 6.0f; // <--- Zmieñ tê wartoœæ, aby dopasowaæ margines (np. 6.0f lub 8.0f)
+    static constexpr float margin = 6.0f;
 };
