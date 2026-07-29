@@ -179,13 +179,7 @@ public:
     {
         float currentLevel = processor.currentOutputLevel.load();
 
-        if (currentLevel > displayLevel) {
-            displayLevel = currentLevel;
-        }
-        else {
-            displayLevel -= 0.035f;
-            if (displayLevel < 0.0f) displayLevel = 0.0f;
-        }
+        displayLevel = currentLevel;
 
         if (currentLevel > peakLevel) {
             peakLevel = currentLevel;
@@ -195,7 +189,7 @@ public:
             peakHoldTimer--;
         }
         else {
-            peakLevel -= 0.02f;
+            peakLevel -= 0.008f;
             if (peakLevel < 0.0f) peakLevel = 0.0f;
         }
         repaint();
@@ -285,6 +279,14 @@ public:
 
 private:
     _8f_clipAudioProcessor& audioProcessor;
+
+    std::array<std::unique_ptr<juce::dsp::Oversampling<float>>, 4> oversamplers;
+
+    double currentSampleRate = 44100.0; // <--- Dodane
+    int decimationCounter = 0;
+    float blockMin = 0.0f;
+    float blockMax = 0.0f;
+
     JasnyStyl jasnyStyl;
 
     juce::Slider gainSlider;

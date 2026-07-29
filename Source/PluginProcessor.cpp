@@ -48,7 +48,7 @@ void _8f_clipAudioProcessor::changeProgramName(int index, const juce::String& ne
 
 void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    juce::ignoreUnused(sampleRate);
+    currentSampleRate = sampleRate;
     for (auto& os : oversamplers)
     {
         os->initProcessing(samplesPerBlock);
@@ -102,7 +102,7 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     float clipVal = apvts.getRawParameterValue("CLIP")->load();
     float clipPct = clipVal / 100.0f;
     float softPct = apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
-    float zoomVal = apvts.getRawParameterValue("ZOOM")->load(); // Pobieramy wartoœæ suwaka prêdkoœci/zoomu
+    float zoomVal = apvts.getRawParameterValue("ZOOM")->load();
 
     int osMode = (int)apvts.getRawParameterValue("OS")->load();
 
@@ -146,11 +146,8 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         oversamplers[osMode - 1]->processSamplesDown(audioBlock);
     }
 
-    // Zamierzony maksymalny poziom wyjœcia przy danym CLIP i SOFTNESS
-    // (dok³adnie ten sam sufit co w formule waveshapera i na wykresie TRANSFER FUNCTION)
     float ceiling = threshold + softPct * (1.0f - threshold);
 
-    // --- BEZPIECZNIK OSTATECZNY ---
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer(channel);
@@ -160,17 +157,11 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
             if (channelData[sample] < -ceiling) channelData[sample] = -ceiling;
         }
     }
-    // -----------------------------
 
-    // --- ZBIERANJE SZCZYTÓW STEROWANE PARAMETREM ZOOM ---
     float maxOutputMagnitude = 0.0f;
     int numSamples = buffer.getNumSamples();
 
-    // Normalizujemy wartoœæ zoom do zakresu 0.0 - 1.0[cite: 11]
     float norm = juce::jlimit(0.0f, 1.0f, (zoomVal - 0.01f) / 0.09f);
-
-    // Skala wyk³adnicza zapewnia idealnie zbalansowan¹, p³ynn¹ i naturaln¹
-    // zmianê prêdkoœci w ca³ym zakresie suwaka (od 1024 do 16)[cite: 11]
     float decimationTargetFloat = 1024.0f * std::pow(16.0f / 1024.0f, norm);
     int decimationTarget = juce::jlimit(16, 1024, juce::roundToInt(decimationTargetFloat));
 
@@ -202,9 +193,20 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
             }
         }
     }
-    // ----------------------------------------------------
 
-    currentOutputLevel.store(maxOutputMagnitude);
+    float currentLevelStored = currentOutputLevel.load();
+    if (maxOutputMagnitude > currentLevelStored)
+    {
+        currentLevelStored = maxOutputMagnitude;
+    }
+    else
+    {
+        float decayRatePerSample = 1.0f / (currentSampleRate * 0.35f);
+        currentLevelStored -= decayRatePerSample * numSamples;
+        if (currentLevelStored < maxOutputMagnitude)
+            currentLevelStored = maxOutputMagnitude;
+    }
+    currentOutputLevel.store(currentLevelStored);
 }
 
 bool _8f_clipAudioProcessor::hasEditor() const { return true; }
@@ -213,14 +215,11 @@ juce::AudioProcessorEditor* _8f_clipAudioProcessor::createEditor() { return new 
 void _8f_clipAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     auto state = apvts.copyState();
-
-    // Zapisujemy aktualny rozmiar okna do stanu APVTS, jeœli edytor jest otwarty
     if (auto* editor = getActiveEditor())
     {
         state.setProperty("uiWidth", editor->getWidth(), nullptr);
         state.setProperty("uiHeight", editor->getHeight(), nullptr);
     }
-
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -233,11 +232,8 @@ void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInByt
         if (xmlState->hasTagName(apvts.state.getType()))
         {
             apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
-
-            // Odczytujemy zapisany rozmiar okna ze stanu
             int savedWidth = apvts.state.getProperty("uiWidth", 680);
             int savedHeight = apvts.state.getProperty("uiHeight", 500);
-
             if (auto* editor = getActiveEditor())
             {
                 editor->setSize(savedWidth, savedHeight);
@@ -254,7 +250,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
         juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
-	// zoom slider for waveform display, range from 0.05 to 4.0, default 0.1
     params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 0.01f, 0.1f, 0.05f));
 
     return { params.begin(), params.end() };

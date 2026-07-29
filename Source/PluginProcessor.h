@@ -48,7 +48,6 @@ public:
 
     std::atomic<float> currentOutputLevel{ 0.0f };
 
-    // Zwiêkszony bufor dla szerokiego zakresu regulacji prêdkoœci/zoomu
     static constexpr int waveformSize = 4096;
     std::vector<float> waveMinHistory;
     std::vector<float> waveMaxHistory;
@@ -57,7 +56,7 @@ public:
 private:
     std::array<std::unique_ptr<juce::dsp::Oversampling<float>>, 4> oversamplers;
 
-    // Stan decymacji dla zbierania próbek waveformu — musi byæ per-instancja, nie static!
+    double currentSampleRate = 44100.0;
     int decimationCounter = 0;
     float blockMin = 0.0f;
     float blockMax = 0.0f;
