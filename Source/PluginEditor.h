@@ -224,7 +224,7 @@ public:
 
         g.setColour(juce::Colours::darkgrey);
         g.setFont(12.0f);
-        g.drawText("CLIP FUNCTION", 8, 4, 150, 20, juce::Justification::left);
+        g.drawText("CLIPPING FUNCTION", 8, 4, 150, 20, juce::Justification::left);
     }
 
 private:
