@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "ContextMenu.h" // Do³¹czamy nasze nowe menu RMB
 
 class JasnyStyl : public juce::LookAndFeel_V4
 {
@@ -231,7 +232,7 @@ private:
     _8f_clipAudioProcessor& processor;
 };
 
-// --- WYŒWIETLACZ 2: Podgl¹d fali audio (czyste s³upki bez bia³ych plam w œrodku) ---
+// --- WYŒWIETLACZ 2: Podgl¹d fali audio ---
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
 public:
@@ -390,6 +391,36 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
+
+    void mouseDown(const juce::MouseEvent& event) override
+    {
+        if (event.mods.isRightButtonDown())
+        {
+            ContextMenu::show(this,
+                [this]() { setSize(680, 500); },
+                [this]() {
+                    if (auto* parent = getTopLevelComponent())
+                    {
+                        if (parent->findChildWithID("AboutBox") == nullptr)
+                        {
+                            auto* aboutBox = new AboutBoxComponent();
+                            aboutBox->setComponentID("AboutBox");
+
+                            int boxWidth = 360;
+                            int boxHeight = 235;
+
+                            int x = (parent->getWidth() - boxWidth) / 2;
+                            int y = (parent->getHeight() - boxHeight) / 2;
+
+                            aboutBox->setBounds(x, y, boxWidth, boxHeight);
+                            parent->addAndMakeVisible(aboutBox);
+                            aboutBox->toFront(true);
+                        }
+                    }
+                }
+            );
+        }
+    }
 
 private:
     _8f_clipAudioProcessor& audioProcessor;

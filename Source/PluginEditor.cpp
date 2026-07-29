@@ -49,7 +49,7 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     addAndMakeVisible(logoComponent);
 
     setResizable(true, true);
-    setResizeLimits(550, 400, 4096, 2560);
+    setResizeLimits(550, 400, 4096, 2560); // Maksymalne limity pod 4K
 
     // Odczytujemy zapisany rozmiar lub bierzemy domyślny
     int savedWidth = audioProcessor.apvts.state.getProperty("uiWidth", 680);
