@@ -165,11 +165,14 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     // --- ZBIERANJE SZCZYTÓW STEROWANE PARAMETREM ZOOM ---
     float maxOutputMagnitude = 0.0f;
     int numSamples = buffer.getNumSamples();
-    // decimationCounter, blockMin, blockMax s¹ teraz polami klasy — brak deklaracji tutaj
 
-    // Im wy¿szy zoom, tym rzadszy zapis próbek, co daje bardzo powolny i gêsty ruch
-    // Odwrócenie kierunku: ruch w lewo (mniejsze wartoœci) daje wolniejszy ruch/zoom, ruch w prawo przyspiesza
-    int decimationTarget = juce::jlimit(4, 128, (int)juce::jmap(zoomVal, 0.01f, 0.1f, 128.0f, 4.0f));
+    // Normalizujemy wartoœæ zoom do zakresu 0.0 - 1.0[cite: 11]
+    float norm = juce::jlimit(0.0f, 1.0f, (zoomVal - 0.01f) / 0.09f);
+
+    // Skala wyk³adnicza zapewnia idealnie zbalansowan¹, p³ynn¹ i naturaln¹
+    // zmianê prêdkoœci w ca³ym zakresie suwaka (od 1024 do 16)[cite: 11]
+    float decimationTargetFloat = 1024.0f * std::pow(16.0f / 1024.0f, norm);
+    int decimationTarget = juce::jlimit(16, 1024, juce::roundToInt(decimationTargetFloat));
 
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
