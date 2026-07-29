@@ -169,7 +169,7 @@ void _8f_clipAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     // Im wy¿szy zoom, tym rzadszy zapis próbek, co daje bardzo powolny i gêsty ruch
     // Odwrócenie kierunku: ruch w lewo (mniejsze wartoœci) daje wolniejszy ruch/zoom, ruch w prawo przyspiesza
-    int decimationTarget = juce::jlimit(4, 128, (int)((5.0f - zoomVal) * 32.0f));
+    int decimationTarget = juce::jlimit(4, 128, (int)juce::jmap(zoomVal, 0.01f, 0.1f, 128.0f, 4.0f));
 
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
@@ -252,7 +252,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
         juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
 	// zoom slider for waveform display, range from 0.05 to 4.0, default 0.1
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 0.01f, 0.1f, 2.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 0.01f, 0.1f, 0.05f));
 
     return { params.begin(), params.end() };
 }
