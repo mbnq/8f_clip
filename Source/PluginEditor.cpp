@@ -75,11 +75,12 @@ void _8f_clipAudioProcessorEditor::paint(juce::Graphics& g)
     int availableWidthForSliders = sliderArea.getWidth() - 100;
     int w = availableWidthForSliders / 4;
 
-    // Podpisy pod knobami
-    g.drawText("GAIN", sliderArea.getX(), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
-    g.drawText("CLIP", sliderArea.getX() + w, sliderArea.getY() - 15, w, 15, juce::Justification::centred);
-    g.drawText("SOFTNESS", sliderArea.getX() + (w * 2), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
-    g.drawText("OVERSAMPLING", sliderArea.getX() + (w * 3), sliderArea.getY() - 15, w, 15, juce::Justification::centred);
+    // Podpisy umieszczone na samym dole obszaru suwaków (pod knobami)
+    float labelY = sliderArea.getY() + sliderArea.getHeight() - 15;
+    g.drawText("GAIN", sliderArea.getX(), labelY, w, 15, juce::Justification::centred);
+    g.drawText("CLIP", sliderArea.getX() + w, labelY, w, 15, juce::Justification::centred);
+    g.drawText("SOFTNESS", sliderArea.getX() + (w * 2), labelY, w, 15, juce::Justification::centred);
+    g.drawText("OVERSAMPLING", sliderArea.getX() + (w * 3), labelY, w, 15, juce::Justification::centred);
 }
 
 void _8f_clipAudioProcessorEditor::resized()
@@ -90,13 +91,16 @@ void _8f_clipAudioProcessorEditor::resized()
     int availableWidthForSliders = sliderArea.getWidth() - 100;
     int sliderWidth = availableWidthForSliders / 4;
 
-    gainSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
-    clipSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
-    softnessSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
-    osSlider.setBounds(sliderArea.removeFromLeft(sliderWidth).reduced(5));
+    // Zostawiamy 15 pikseli na dole dla napisów pod pokrętłami
+    auto actualSlidersArea = sliderArea.removeFromTop(sliderArea.getHeight() - 15);
+
+    gainSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
+    clipSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
+    softnessSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
+    osSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
 
     // Pozycjonowanie interaktywnego bloku logo w prawym dolnym rogu
-    logoComponent.setBounds(sliderArea.removeFromLeft(100));
+    logoComponent.setBounds(actualSlidersArea.removeFromLeft(100));
 
     area.removeFromBottom(15);
 
