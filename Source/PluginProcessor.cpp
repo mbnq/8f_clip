@@ -210,6 +210,14 @@ juce::AudioProcessorEditor* _8f_clipAudioProcessor::createEditor() { return new 
 void _8f_clipAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     auto state = apvts.copyState();
+
+    // Zapisujemy aktualny rozmiar okna do stanu APVTS, jeœli edytor jest otwarty
+    if (auto* editor = getActiveEditor())
+    {
+        state.setProperty("uiWidth", editor->getWidth(), nullptr);
+        state.setProperty("uiHeight", editor->getHeight(), nullptr);
+    }
+
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -222,6 +230,15 @@ void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInByt
         if (xmlState->hasTagName(apvts.state.getType()))
         {
             apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+            // Odczytujemy zapisany rozmiar okna ze stanu
+            int savedWidth = apvts.state.getProperty("uiWidth", 680);
+            int savedHeight = apvts.state.getProperty("uiHeight", 500);
+
+            if (auto* editor = getActiveEditor())
+            {
+                editor->setSize(savedWidth, savedHeight);
+            }
         }
     }
 }

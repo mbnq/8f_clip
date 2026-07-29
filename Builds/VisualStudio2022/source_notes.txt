@@ -1,0 +1,3 @@
+
+xcopy "F:\projekty\_VST_\8f_clip\code\8f_clip\Builds\VisualStudio2022\x64\Debug\VST3" "C:\Program Files\Common Files\VST3\8f" /E /R /Y 
+

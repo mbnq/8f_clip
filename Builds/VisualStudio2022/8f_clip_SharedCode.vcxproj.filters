@@ -10046,4 +10046,9 @@
       <Filter>JUCE Modules\juce_javascript\choc</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="source_notes.txt">
+      <Filter>8f_clip\Source</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

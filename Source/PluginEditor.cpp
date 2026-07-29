@@ -50,7 +50,11 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
 
     setResizable(true, true);
     setResizeLimits(550, 400, 1200, 900);
-    setSize(680, 500);
+
+    // Odczytujemy zapisany rozmiar lub bierzemy domyślny
+    int savedWidth = audioProcessor.apvts.state.getProperty("uiWidth", 680);
+    int savedHeight = audioProcessor.apvts.state.getProperty("uiHeight", 500);
+    setSize(savedWidth, savedHeight);
 }
 
 _8f_clipAudioProcessorEditor::~_8f_clipAudioProcessorEditor()

@@ -54,7 +54,7 @@ namespace ProjectInfo
 {
     const char* const  projectName    = "8f_clip";
     const char* const  companyName    = "Oktafonika";
-    const char* const  versionString  = "1.0.0";
-    const int          versionNumber  = 0x10000;
+    const char* const  versionString  = "0.0.2";
+    const int          versionNumber  = 0x2;
 }
 #endif
