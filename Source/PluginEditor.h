@@ -396,29 +396,34 @@ public:
     {
         if (event.mods.isRightButtonDown())
         {
-            ContextMenu::show(this,
-                [this]() { setSize(680, 500); },
-                [this]() {
-                    if (auto* parent = getTopLevelComponent())
+            ContextMenu::show(this, [this](int choice)
+                {
+                    if (choice == 1)
                     {
-                        if (parent->findChildWithID("AboutBox") == nullptr)
+                        setSize(680, 500);
+                    }
+                    else if (choice == 2)
+                    {
+                        if (auto* parent = getTopLevelComponent())
                         {
-                            auto* aboutBox = new AboutBoxComponent();
-                            aboutBox->setComponentID("AboutBox");
+                            if (parent->findChildWithID("AboutBox") == nullptr)
+                            {
+                                auto* aboutBox = new AboutBoxComponent();
+                                aboutBox->setComponentID("AboutBox");
 
-                            int boxWidth = 360;
-                            int boxHeight = 235;
+                                int boxWidth = 360;
+                                int boxHeight = 235;
 
-                            int x = (parent->getWidth() - boxWidth) / 2;
-                            int y = (parent->getHeight() - boxHeight) / 2;
+                                int x = (parent->getWidth() - boxWidth) / 2;
+                                int y = (parent->getHeight() - boxHeight) / 2;
 
-                            aboutBox->setBounds(x, y, boxWidth, boxHeight);
-                            parent->addAndMakeVisible(aboutBox);
-                            aboutBox->toFront(true);
+                                aboutBox->setBounds(x, y, boxWidth, boxHeight);
+                                parent->addAndMakeVisible(aboutBox);
+                                aboutBox->toFront(true);
+                            }
                         }
                     }
-                }
-            );
+                });
         }
     }
 
