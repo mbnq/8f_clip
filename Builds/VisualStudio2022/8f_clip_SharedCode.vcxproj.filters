@@ -9962,6 +9962,9 @@
     <ClInclude Include="..\..\Source\WaveformDisplay.h">
       <Filter>8f_clip\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\TransferGraph.h">
+      <Filter>8f_clip\Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_devices\native\asio\LICENSE.txt">

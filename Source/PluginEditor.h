@@ -3,7 +3,8 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "ContextMenu.h"
-#include "WaveformDisplay.h" // Do³¹czamy nasz wydzielony komponent wyœwietlacza fali
+#include "WaveformDisplay.h"
+#include "TransferGraph.h"
 
 class JasnyStyl : public juce::LookAndFeel_V4
 {
@@ -166,71 +167,6 @@ public:
             }
         }
     }
-};
-
-// --- WYŒWIETLACZ 1: Wykres funkcji clippera ---
-class TransferGraphComponent : public juce::Component, public juce::Timer
-{
-public:
-    TransferGraphComponent(_8f_clipAudioProcessor& p) : processor(p) { startTimerHz(30); }
-    void timerCallback() override { repaint(); }
-
-    void paint(juce::Graphics& g) override
-    {
-        g.setColour(juce::Colours::whitesmoke);
-        g.fillRoundedRectangle(getLocalBounds().toFloat(), 6.0f);
-        g.setColour(juce::Colours::lightgrey);
-        g.drawRoundedRectangle(getLocalBounds().toFloat(), 6.0f, 1.0f);
-
-        g.setColour(juce::Colours::whitesmoke.darker(0.1f));
-        float w = (float)getWidth();
-        float h = (float)getHeight();
-        g.drawVerticalLine(int(w / 2), 0.0f, h);
-        g.drawHorizontalLine(int(h / 2), 0.0f, w);
-
-        float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
-        float clipPct = clipVal / 100.0f;
-        float softPct = processor.apvts.getRawParameterValue("SOFTNESS")->load() / 100.0f;
-        float threshold = juce::jmax(0.01f, 1.0f - clipPct);
-
-        juce::Path p;
-        int numPoints = 100;
-        for (int i = 0; i < numPoints; ++i)
-        {
-            float normX = (float)i / (float)(numPoints - 1);
-            float input = normX * 2.0f - 1.0f;
-            float output = input;
-
-            if (std::abs(input) <= threshold) {
-                output = input;
-            }
-            else {
-                float sign = (input > 0.0f) ? 1.0f : -1.0f;
-                float absIn = std::abs(input);
-                float hardVal = sign * threshold;
-                float excess = absIn - threshold;
-                float softVal = sign * (threshold + (1.0f - threshold) * std::tanh(excess / (1.0f - threshold + 0.0001f)));
-                if (softVal > 1.0f) softVal = 1.0f;
-                output = hardVal + softPct * (softVal - hardVal);
-            }
-
-            float screenX = normX * w;
-            float screenY = h - ((output + 1.0f) * 0.5f * h);
-
-            if (i == 0) p.startNewSubPath(screenX, screenY);
-            else p.lineTo(screenX, screenY);
-        }
-
-        g.setColour(juce::Colours::dodgerblue);
-        g.strokePath(p, juce::PathStrokeType(2.5f));
-
-        g.setColour(juce::Colours::darkgrey);
-        g.setFont(12.0f);
-        g.drawText("CLIPPING FUNCTION", 8, 4, 150, 20, juce::Justification::left);
-    }
-
-private:
-    _8f_clipAudioProcessor& processor;
 };
 
 // --- WYŒWIETLACZ 3: Miernik wyjœciowy ---
