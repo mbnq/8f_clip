@@ -92,7 +92,7 @@ public:
             "Wersja: " + juce::String(JucePlugin_VersionString) + " FREEWARE 2026\n\n"
             "Author: Mateusz \"Oktafonika\" Bieniek\n"
             "Email: mateuszbnk@gmail.com\n\n"
-            "Support my music and grab a copy here:";
+            "Support me by buying my music here:";
 
         g.drawMultiLineText(text, 20, 58, getWidth() - 40, juce::Justification::centredLeft);
     }
@@ -224,7 +224,7 @@ public:
 
         g.setColour(juce::Colours::darkgrey);
         g.setFont(12.0f);
-        g.drawText("TRANSFER FUNCTION TEST", 8, 4, 150, 20, juce::Justification::left);
+        g.drawText("CLIP FUNCTION", 8, 4, 150, 20, juce::Justification::left);
     }
 
 private:

@@ -246,7 +246,7 @@ void _8f_clipAudioProcessor::setStateInformation(const void* data, int sizeInByt
 juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", -24.0f, 24.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", -12.0f, 12.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("CLIP", "Clip", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
