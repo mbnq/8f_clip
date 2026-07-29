@@ -17,7 +17,7 @@ public:
 
     void timerCallback() override
     {
-        // Jeœli podgl¹d jest spauzowany, nie odœwie¿amy widoku fali (zamra¿amy klatkê)
+        // Jeœli podgl¹d jest spauzowany, nie odœwie¿amy widoku fali (zamra¿amy klatkê)[cite: 27]
         if (!isPaused)
         {
             repaint();
@@ -29,8 +29,8 @@ public:
     {
         if (event.getNumberOfClicks() == 2)
         {
-            isPaused = !isPaused; // Prze³¹czamy stan pauzy
-            repaint();            // Natychmiast odœwie¿amy, aby pokazaæ lub schowaæ napis PAUSED
+            isPaused = !isPaused; // Prze³¹czamy stan pauzy[cite: 27]
+            repaint();            // Natychmiast odœwie¿amy, aby pokazaæ lub schowaæ napis PAUSED[cite: 27]
         }
     }
 
@@ -47,16 +47,36 @@ public:
         float w = (float)getWidth();
         float h = (float)getHeight();
 
+        // Pobieramy parametry CLIP i SOFTNESS
         float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
         float clipPct = clipVal / 100.0f;
+        float softVal = processor.apvts.getRawParameterValue("SOFTNESS")->load();
+        float softPct = softVal / 100.0f;
+
         float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
+        // Pozycje niebieskich linii (prog clippera)
         float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
         float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
 
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.6f));
         g.drawLine(0.0f, posThresholdY, w, posThresholdY, 1.0f);
         g.drawLine(0.0f, negThresholdY, w, negThresholdY, 1.0f);
+
+        // Rysowanie zielonych linii reprezentuj¹cych SOFTNESS
+        // Warunki: softness > 0 oraz clip > 0 (gdy clip == 0, próg jest na 1.0 i softness nie ma sensu)
+        if (softVal > 0.0f && clipVal > 0.0f)
+        {
+            // Ca³kowity sufit uwzglêdniaj¹cy softness (zgodny z formu³¹ w procesorze)
+            float ceiling = threshold + softPct * (1.0f - threshold);
+
+            float posCeilingY = (h / 2.0f) - (ceiling * (h * 0.4f));
+            float negCeilingY = (h / 2.0f) + (ceiling * (h * 0.4f));
+
+            g.setColour(juce::Colours::limegreen.withAlpha(0.7f));
+            g.drawLine(0.0f, posCeilingY, w, posCeilingY, 1.0f);
+            g.drawLine(0.0f, negCeilingY, w, negCeilingY, 1.0f);
+        }
 
         int size = processor.waveformSize;
         int head = processor.waveformIndex.load();
