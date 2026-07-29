@@ -251,8 +251,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout _8f_clipAudioProcessor::crea
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SOFTNESS", "Softness", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterChoice>("OS", "Oversampling",
         juce::StringArray{ "OFF", "2X", "4X", "8X", "16X" }, 0));
-    // Dodany parametr ZOOM steruj¹cy prêdkoœci¹/gêstoœci¹ oscyloskopu (zakres od 1.0 do 4.0, domyœlnie 2.5)
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 1.0f, 4.0f, 2.5f));
+	// zoom slider for waveform display, range from 0.05 to 4.0, default 2.5
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ZOOM", "Zoom", 0.05f, 4.0f, 2.5f));
 
     return { params.begin(), params.end() };
 }
