@@ -293,13 +293,10 @@ public:
         g.setColour(juce::Colours::darkgrey);
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
-
-        // Symbole "-" i "+" (znak "-" przesuniêty bli¿ej o kolejn¹ szerokoœæ symbolu)
         g.setFont(11.0f);
         int sliderRightX = getWidth() - 15;
         int sliderY = getHeight() - 20 + 5;
-
-        g.drawText("-", sliderRightX - 114, sliderY, 12, 15, juce::Justification::centred); // Przesuniêto bli¿ej suwaka
+        g.drawText("-", sliderRightX - 90, sliderY, 12, 15, juce::Justification::centred);
         g.drawText("+", sliderRightX + 3, sliderY, 12, 15, juce::Justification::centred);
     }
 
