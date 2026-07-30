@@ -73,13 +73,13 @@ public:
 
         g.setColour(juce::Colours::darkgrey);
 
-        bounds.removeFromTop(26);
+        bounds.removeFromTop(23);
         auto topPart = bounds.removeFromTop(bounds.getHeight() * 0.7f);
 
         g.setFont(juce::FontOptions(72.0f, juce::Font::bold));
         g.drawText("8f", topPart, juce::Justification::centred, false);
 
-        g.setFont(juce::FontOptions(11.0f));
+        g.setFont(juce::FontOptions(16.0f));
         g.drawText("Oktafonika", bounds, juce::Justification::centred, false);
     }
 
