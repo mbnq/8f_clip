@@ -15,8 +15,8 @@ public:
             };
         addAndMakeVisible(closeButton);
 
-        bandcampButton.setButtonText("[https://oktafonika.bandcamp.com/](https://oktafonika.bandcamp.com/)");
-        bandcampButton.setURL(juce::URL("[https://oktafonika.bandcamp.com/](https://oktafonika.bandcamp.com/)"));
+        bandcampButton.setButtonText("https://oktafonika.bandcamp.com/");
+        bandcampButton.setURL(juce::URL("https://oktafonika.bandcamp.com/"));
         bandcampButton.setColour(juce::HyperlinkButton::textColourId, juce::Colours::dodgerblue);
         addAndMakeVisible(bandcampButton);
     }
@@ -92,7 +92,7 @@ public:
     {
         if (event.mods.isRightButtonDown())
         {
-            juce::URL("[https://oktafonika.bandcamp.com/](https://oktafonika.bandcamp.com/)").launchInDefaultBrowser();
+            juce::URL("https://oktafonika.bandcamp.com/").launchInDefaultBrowser();
         }
         else
         {
