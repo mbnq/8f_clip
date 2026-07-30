@@ -3555,8 +3555,10 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_video.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\components\LogoInfo.h" />
     <ClInclude Include="..\..\Source\components\OutputMeter.h" />
     <ClInclude Include="..\..\Source\components\ContextMenu.h" />
+    <ClInclude Include="..\..\Source\components\Themes.h" />
     <ClInclude Include="..\..\Source\PluginProcessor.h" />
     <ClInclude Include="..\..\Source\PluginEditor.h" />
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_analytics\analytics\juce_Analytics.h" />
