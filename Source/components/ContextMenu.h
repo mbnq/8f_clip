@@ -4,12 +4,27 @@
 class ContextMenuLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    ContextMenuLookAndFeel()
+    ContextMenuLookAndFeel(int currentStyleIndex)
     {
-        setColour(juce::PopupMenu::backgroundColourId, juce::Colours::white);
-        setColour(juce::PopupMenu::textColourId, juce::Colours::darkgrey);
-        setColour(juce::PopupMenu::highlightedBackgroundColourId, juce::Colours::dodgerblue.withAlpha(0.2f));
-        setColour(juce::PopupMenu::highlightedTextColourId, juce::Colours::dodgerblue.darker(0.2f));
+        setStyle(currentStyleIndex);
+    }
+
+    void setStyle(int currentStyleIndex)
+    {
+        if (currentStyleIndex == 1) // Dark Red Style
+        {
+            setColour(juce::PopupMenu::backgroundColourId, juce::Colour(0xff222222));
+            setColour(juce::PopupMenu::textColourId, juce::Colours::whitesmoke);
+            setColour(juce::PopupMenu::highlightedBackgroundColourId, juce::Colours::indianred.withAlpha(0.4f));
+            setColour(juce::PopupMenu::highlightedTextColourId, juce::Colours::white);
+        }
+        else // Bright Blue Style (Light)
+        {
+            setColour(juce::PopupMenu::backgroundColourId, juce::Colours::white);
+            setColour(juce::PopupMenu::textColourId, juce::Colours::darkgrey);
+            setColour(juce::PopupMenu::highlightedBackgroundColourId, juce::Colours::dodgerblue.withAlpha(0.2f));
+            setColour(juce::PopupMenu::highlightedTextColourId, juce::Colours::dodgerblue.darker(0.2f));
+        }
     }
 };
 
@@ -28,7 +43,9 @@ public:
 
         m.addItem(2, "About");
 
-        static ContextMenuLookAndFeel menuLookAndFeel;
+        static ContextMenuLookAndFeel menuLookAndFeel(currentStyleIndex);
+        menuLookAndFeel.setStyle(currentStyleIndex);
+
         m.setLookAndFeel(&menuLookAndFeel);
         m.showMenuAsync(juce::PopupMenu::Options(), callback);
     }
