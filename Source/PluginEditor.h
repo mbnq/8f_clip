@@ -70,6 +70,8 @@ private:
     std::unique_ptr<SliderAttachment> softnessAttachment;
     std::unique_ptr<SliderAttachment> osAttachment;
 
+    juce::DropShadowEffect gainShadow, clipShadow, softnessShadow, osShadow;
+
     TransferGraphComponent transferGraph;
     WaveformDisplayComponent waveformDisplay;
     OutputMeterComponent outputMeter;

@@ -15,6 +15,8 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
         juce::MathConstants<float>::pi * 3.0f, true);
     addAndMakeVisible(gainSlider);
     gainAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "GAIN", gainSlider);
+    gainShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
+    gainSlider.setComponentEffect(&gainShadow);
 
     // CLIP
     clipSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -23,6 +25,8 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     clipSlider.setRotaryParameters(0.0f, juce::MathConstants<float>::pi * 2.0f, true);
     addAndMakeVisible(clipSlider);
     clipAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "CLIP", clipSlider);
+    clipShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
+    clipSlider.setComponentEffect(&clipShadow);
 
     // SOFTNESS
     softnessSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -32,6 +36,8 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
         juce::MathConstants<float>::pi * 2.0f, true);
     addAndMakeVisible(softnessSlider);
     softnessAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "SOFTNESS", softnessSlider);
+    softnessShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
+    softnessSlider.setComponentEffect(&softnessShadow);
 
     // OVERSAMPLING
     osSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -44,6 +50,8 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     addAndMakeVisible(transferGraph);
     addAndMakeVisible(waveformDisplay);
     addAndMakeVisible(outputMeter);
+    osShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
+    osSlider.setComponentEffect(&osShadow);
 
     // Dodajemy interaktywne logo do widoku
     addAndMakeVisible(logoComponent);
