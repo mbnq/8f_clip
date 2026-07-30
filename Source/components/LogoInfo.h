@@ -11,7 +11,12 @@ public:
         closeButton.onClick = [this]() {
             if (auto* parent = getParentComponent())
                 parent->removeChildComponent(this);
-            delete this;
+
+            juce::Component::SafePointer<AboutBoxComponent> safeThis(this);
+            juce::MessageManager::callAsync([safeThis]() {
+                if (safeThis != nullptr)
+                    delete safeThis.getComponent();
+                });
             };
         addAndMakeVisible(closeButton);
 
