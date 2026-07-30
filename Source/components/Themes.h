@@ -47,7 +47,7 @@ public:
         }
 
         g.setColour(juce::Colours::darkgrey);
-        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.setFont(juce::FontOptions(11.0f, juce::Font::bold)); // Zmniejszono z 13.0f na 11.0f
         g.drawText(text, bounds, juce::Justification::centred, true);
     }
 };
