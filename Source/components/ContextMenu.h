@@ -11,14 +11,14 @@ public:
 
     void setStyle(int currentStyleIndex)
     {
-        if (currentStyleIndex == 1) // Dark Red Style
+        if (currentStyleIndex == 1) // dark red
         {
             setColour(juce::PopupMenu::backgroundColourId, juce::Colour(0xff222222));
             setColour(juce::PopupMenu::textColourId, juce::Colours::whitesmoke);
             setColour(juce::PopupMenu::highlightedBackgroundColourId, juce::Colours::indianred.withAlpha(0.4f));
             setColour(juce::PopupMenu::highlightedTextColourId, juce::Colours::white);
         }
-        else // Bright Blue Style (Light)
+        else // bright blue
         {
             setColour(juce::PopupMenu::backgroundColourId, juce::Colours::white);
             setColour(juce::PopupMenu::textColourId, juce::Colours::darkgrey);
