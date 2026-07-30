@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+#include "../PluginProcessor.h"
 
 class TransferGraphComponent : public juce::Component, public juce::Timer
 {

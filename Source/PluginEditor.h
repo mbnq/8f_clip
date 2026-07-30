@@ -2,9 +2,9 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "ContextMenu.h"
-#include "WaveformDisplay.h"
-#include "TransferGraph.h"
+#include "components/ContextMenu.h"
+#include "components/WaveformDisplay.h"
+#include "components/TransferGraph.h"
 #include "components/OutputMeter.h"
 
 class JasnyStyl : public juce::LookAndFeel_V4

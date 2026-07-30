@@ -988,6 +988,9 @@
     <Filter Include="JUCE Library Code">
       <UniqueIdentifier>{7ED5A90E-41AF-A1EF-659B-37CEEAB9BA61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="8f_clip\Source\components">
+      <UniqueIdentifier>{54c8fd9a-67f7-4030-aa99-daf06a3064a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp">
@@ -9956,17 +9959,17 @@
     <ClInclude Include="..\..\JuceLibraryCode\JucePluginDefines.h">
       <Filter>JUCE Library Code</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ContextMenu.h">
-      <Filter>8f_clip\Source</Filter>
+    <ClInclude Include="..\..\Source\components\WaveformDisplay.h">
+      <Filter>8f_clip\Source\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\WaveformDisplay.h">
-      <Filter>8f_clip\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\TransferGraph.h">
-      <Filter>8f_clip\Source</Filter>
+    <ClInclude Include="..\..\Source\components\TransferGraph.h">
+      <Filter>8f_clip\Source\components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\components\OutputMeter.h">
-      <Filter>8f_clip\Source</Filter>
+      <Filter>8f_clip\Source\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\components\ContextMenu.h">
+      <Filter>8f_clip\Source\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
