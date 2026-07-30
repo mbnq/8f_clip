@@ -21,11 +21,8 @@ public:
         juce::PopupMenu m;
         m.addItem(1, "Reset Window Size");
         m.addItem(2, "About");
-
         static ContextMenuLookAndFeel menuLookAndFeel;
         m.setLookAndFeel(&menuLookAndFeel);
-
-        // Wywo³ujemy menu bez dodatkowych modyfikatorów Options – JUCE sam poprawnie zmapuje pozycjê myszy
         m.showMenuAsync(juce::PopupMenu::Options(), callback);
     }
 };

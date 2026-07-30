@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <JuceHeader.h>
 
-// --- WYSKAKUJ�CE OKIENKO INFORMACYJNE (ABOUT) ---
 class AboutBoxComponent : public juce::Component
 {
 public:
@@ -36,7 +35,7 @@ public:
         g.setFont(juce::FontOptions(13.0f));
         juce::String text =
             "8f Audio Clipper\n"
-            "Wersja: 0.4c 2026\n\n"
+            "Wersja: 0.5a 2026\n\n"
             "Author: Mateusz \"Oktafonika\" Bieniek\n"
             "Email: mateuszbnk@gmail.com\n\n"
             "Support me by buying my music here:";
@@ -51,9 +50,6 @@ public:
         bandcampButton.setBounds(20, 152, getWidth() - 40, 20);
     }
 
-    // Wywoływane automatycznie przez JUCE, gdy zmieni się rozmiar rodzica
-    // (np. resize okna wtyczki). Utrzymujemy stały rozmiar okienka i tylko
-    // przeliczamy jego pozycję tak, żeby zawsze było wyśrodkowane.
     void parentSizeChanged() override
     {
         if (auto* parent = getParentComponent())
@@ -69,13 +65,11 @@ private:
     juce::HyperlinkButton bandcampButton;
 };
 
-// --- INTERAKTYWNY KOMPONENT LOGO (8f + Oktafonika) ---
 class LogoComponent : public juce::Component
 {
 public:
     LogoComponent()
     {
-        // Konfiguracja cienia pod logo
         shadowEffect.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.25f), 6, { 0, 2 }));
         setComponentEffect(&shadowEffect);
     }

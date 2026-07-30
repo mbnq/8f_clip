@@ -44,8 +44,8 @@ int _8f_clipAudioProcessor::getNumPrograms() { return 1; }
 int _8f_clipAudioProcessor::getCurrentProgram() { return 0; }
 void _8f_clipAudioProcessor::setCurrentProgram(int index) { juce::ignoreUnused(index); }
 const juce::String _8f_clipAudioProcessor::getProgramName(int index) { juce::ignoreUnused(index); return {}; }
-void _8f_clipAudioProcessor::changeProgramName(int index, const juce::String& newName) { juce::ignoreUnused(index, newName); }
 
+void _8f_clipAudioProcessor::changeProgramName(int index, const juce::String& newName) { juce::ignoreUnused(index, newName); }
 void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
@@ -65,7 +65,6 @@ void _8f_clipAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
     else
         setLatencySamples(0);
 }
-
 void _8f_clipAudioProcessor::releaseResources() {}
 
 #ifndef JucePlugin_PreferredChannelConfigurations

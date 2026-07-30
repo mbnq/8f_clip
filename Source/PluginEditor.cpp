@@ -2,23 +2,21 @@
 #include "PluginEditor.h"
 
 _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p),
-    transferGraph(p), waveformDisplay(p), outputMeter(p)
+    : AudioProcessorEditor(&p), audioProcessor(p), transferGraph(p), waveformDisplay(p), outputMeter(p)
 {
     setLookAndFeel(&jasnyStyl);
 
-    // GAIN
+
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     gainSlider.setTextValueSuffix(" dB");
-    gainSlider.setRotaryParameters(juce::MathConstants<float>::pi,
-        juce::MathConstants<float>::pi * 3.0f, true);
+    gainSlider.setRotaryParameters(juce::MathConstants<float>::pi, juce::MathConstants<float>::pi * 3.0f, true);
     addAndMakeVisible(gainSlider);
     gainAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "GAIN", gainSlider);
     gainShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     gainSlider.setComponentEffect(&gainShadow);
 
-    // CLIP
+
     clipSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     clipSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     clipSlider.setTextValueSuffix(" %");
@@ -28,22 +26,20 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     clipShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     clipSlider.setComponentEffect(&clipShadow);
 
-    // SOFTNESS
+
     softnessSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     softnessSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     softnessSlider.setTextValueSuffix(" %");
-    softnessSlider.setRotaryParameters(0.0f,
-        juce::MathConstants<float>::pi * 2.0f, true);
+    softnessSlider.setRotaryParameters(0.0f, juce::MathConstants<float>::pi * 2.0f, true);
     addAndMakeVisible(softnessSlider);
     softnessAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "SOFTNESS", softnessSlider);
     softnessShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     softnessSlider.setComponentEffect(&softnessShadow);
 
-    // OVERSAMPLING
+
     osSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     osSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    osSlider.setRotaryParameters(0.0f,
-        juce::MathConstants<float>::pi * 2.0f, true);
+    osSlider.setRotaryParameters(0.0f, juce::MathConstants<float>::pi * 2.0f, true);
     addAndMakeVisible(osSlider);
     osAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "OS", osSlider);
 
@@ -53,13 +49,12 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     osShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     osSlider.setComponentEffect(&osShadow);
 
-    // Dodajemy interaktywne logo do widoku
+    // logo
     addAndMakeVisible(logoComponent);
 
     setResizable(true, true);
-    setResizeLimits(550, 400, 4096, 2560); // Maksymalne limity pod 4K
+    setResizeLimits(550, 400, 4096, 2560);
 
-    // Odczytujemy zapisany rozmiar lub bierzemy domyślny
     int savedWidth = audioProcessor.apvts.state.getProperty("uiWidth", 680);
     int savedHeight = audioProcessor.apvts.state.getProperty("uiHeight", 500);
     setSize(savedWidth, savedHeight);
@@ -83,7 +78,6 @@ void _8f_clipAudioProcessorEditor::paint(juce::Graphics& g)
     int availableWidthForSliders = sliderArea.getWidth() - 100;
     int w = availableWidthForSliders / 4;
 
-    // Podpisy umieszczone na samym dole obszaru suwaków (pod knobami)
     float labelY = sliderArea.getY() + sliderArea.getHeight() - 15;
     g.drawText("GAIN", sliderArea.getX(), labelY, w, 15, juce::Justification::centred);
     g.drawText("CLIP", sliderArea.getX() + w, labelY, w, 15, juce::Justification::centred);
@@ -98,8 +92,6 @@ void _8f_clipAudioProcessorEditor::resized()
     auto sliderArea = area.removeFromBottom(100);
     int availableWidthForSliders = sliderArea.getWidth() - 100;
     int sliderWidth = availableWidthForSliders / 4;
-
-    // Zostawiamy 15 pikseli na dole dla napisów pod pokrętłami
     auto actualSlidersArea = sliderArea.removeFromTop(sliderArea.getHeight() - 15);
 
     gainSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
@@ -107,7 +99,6 @@ void _8f_clipAudioProcessorEditor::resized()
     softnessSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
     osSlider.setBounds(actualSlidersArea.removeFromLeft(sliderWidth).reduced(5));
 
-    // Pozycjonowanie interaktywnego bloku logo w prawym dolnym rogu
     logoComponent.setBounds(actualSlidersArea.removeFromLeft(100));
 
     area.removeFromBottom(15);

@@ -289,7 +289,7 @@ public:
         g.setColour(juce::Colours::dodgerblue);
         g.strokePath(p, juce::PathStrokeType(2.5f));
 
-        // --- PUNKTY 1 (CLIP) ---
+		// clip points
         float x1R, y1R, x1L, y1L;
         getClipPointCoords(threshold, w, h, x1R, y1R, x1L, y1L);
 
@@ -303,11 +303,11 @@ public:
         g.setColour(juce::Colours::white);
         g.fillEllipse(x1L - 3.0f, y1L - 3.0f, 6.0f, 6.0f);
 
-        // --- PUNKTY 2 (SOFTNESS) ---
+		// softness points
         float x2R, y2R, x2L, y2L;
         getSoftnessPointCoords(threshold, softPct, w, h, x2R, y2R, x2L, y2L);
 
-        // Kolor zale¿ny od wartoœci softness (> 0 = zielony, 0 lub mniej = niebieski)
+		// colour changes based on value
         juce::Colour softnessColor = (softVal > 0.0f) ? juce::Colours::limegreen : juce::Colours::dodgerblue;
 
         g.setColour(softnessColor);

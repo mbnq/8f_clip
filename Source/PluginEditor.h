@@ -1,5 +1,4 @@
 #pragma once
-
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "components/ContextMenu.h"
@@ -9,7 +8,7 @@
 #include "components/Themes.h"
 #include "components/LogoInfo.h"
 
-// --- G£ÓWNE OKNO WTYCZKI ---
+// main window
 class _8f_clipAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
@@ -18,7 +17,6 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
-
     void mouseDown(const juce::MouseEvent& event) override
     {
         if (event.mods.isRightButtonDown())
@@ -57,7 +55,7 @@ public:
 private:
     _8f_clipAudioProcessor& audioProcessor;
 
-    JasnyStyl jasnyStyl;
+    BrightBlueStyle jasnyStyl;
 
     juce::Slider gainSlider;
     juce::Slider clipSlider;

@@ -21,7 +21,7 @@ public:
 
     void timerCallback() override
     {
-        // Odœwie¿amy komponent ca³y czas, ¿eby linie i parametry reagowa³y na ¿ywo
+        // refreshing realtime
         repaint();
     }
 
@@ -32,8 +32,7 @@ public:
             isPaused = !isPaused;
             if (isPaused)
             {
-                // W momencie w³¹czenia pauzy kopiujemy ca³¹ aktualn¹ historiê bufora do lokalnych tablic.
-                // Dziêki temu zamra¿amy obraz i nikt nam go nie nadpisze od lewej strony.
+				// while in pause we copy the current waveform data to frozen arrays, i still don't get it much but it works
                 pausedHead = processor.waveformIndex.load();
                 for (int i = 0; i < processor.waveformSize; ++i)
                 {
@@ -58,7 +57,7 @@ public:
         float w = (float)getWidth();
         float h = (float)getHeight();
 
-        // Pobieramy parametry CLIP i SOFTNESS
+        // current CLIP and SOFTNESS
         float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
         float clipPct = clipVal / 100.0f;
         float softVal = processor.apvts.getRawParameterValue("SOFTNESS")->load();
@@ -66,7 +65,7 @@ public:
 
         float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
-        // Pozycje niebieskich linii (próg clippera)
+		// treshold lines
         float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
         float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
 
@@ -74,7 +73,7 @@ public:
         g.drawLine(0.0f, posThresholdY, w, posThresholdY, 1.0f);
         g.drawLine(0.0f, negThresholdY, w, negThresholdY, 1.0f);
 
-        // Rysowanie zielonych linii reprezentuj¹cych SOFTNESS
+		// softness ceiling lines, only if softness and clip are above 0
         if (softVal > 0.0f && clipVal > 0.0f)
         {
             float ceiling = threshold + softPct * (1.0f - threshold);
@@ -88,7 +87,7 @@ public:
         }
 
         int size = processor.waveformSize;
-        // Jeœli zapauzowane, rysujemy z naszych skopiowanych, bezpiecznych tablic "frozen"
+		// if frozen we use arrays, otherwise we use the live waveform data
         int head = isPaused ? pausedHead : processor.waveformIndex.load();
 
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.75f));
