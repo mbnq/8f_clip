@@ -4,8 +4,8 @@
 _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p), transferGraph(p), waveformDisplay(p), outputMeter(p)
 {
-    setLookAndFeel(&jasnyStyl);
-
+    int savedStyle = audioProcessor.apvts.state.getProperty("uiStyle", 0);
+    setStyle(savedStyle);
 
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
@@ -16,7 +16,6 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     gainShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     gainSlider.setComponentEffect(&gainShadow);
 
-
     clipSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     clipSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     clipSlider.setTextValueSuffix(" %");
@@ -26,7 +25,6 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     clipShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     clipSlider.setComponentEffect(&clipShadow);
 
-
     softnessSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     softnessSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     softnessSlider.setTextValueSuffix(" %");
@@ -35,7 +33,6 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     softnessAttachment = std::make_unique<SliderAttachment>(audioProcessor.apvts, "SOFTNESS", softnessSlider);
     softnessShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     softnessSlider.setComponentEffect(&softnessShadow);
-
 
     osSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     osSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
@@ -49,7 +46,6 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     osShadow.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.2f), 5, { 0, 3 }));
     osSlider.setComponentEffect(&osShadow);
 
-    // logo
     addAndMakeVisible(logoComponent);
 
     setResizable(true, true);
@@ -65,11 +61,22 @@ _8f_clipAudioProcessorEditor::~_8f_clipAudioProcessorEditor()
     setLookAndFeel(nullptr);
 }
 
+void _8f_clipAudioProcessorEditor::setStyle(int styleIndex)
+{
+    currentStyle = styleIndex;
+    if (currentStyle == 1)
+        setLookAndFeel(&darkRedStyle);
+    else
+        setLookAndFeel(&brightBlueStyle);
+
+    repaint();
+}
+
 void _8f_clipAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
-    g.setColour(juce::Colours::darkgrey);
+    g.setColour(currentStyle == 1 ? juce::Colours::lightgrey : juce::Colours::darkgrey);
     g.setFont(juce::FontOptions(12.0f));
 
     auto area = getLocalBounds().reduced(15);

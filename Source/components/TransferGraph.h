@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../PluginProcessor.h"
+#include "Themes.h"
 
 class TransferGraphComponent : public juce::Component, public juce::Timer
 {
@@ -238,9 +239,12 @@ public:
 
     void paint(juce::Graphics& g) override
     {
-        g.setColour(juce::Colours::whitesmoke);
+        auto bgColour = getLookAndFeel().findColour(BrightBlueStyle::panelBackgroundId);
+        auto outlineColour = getLookAndFeel().findColour(BrightBlueStyle::panelOutlineId);
+
+        g.setColour(bgColour);
         g.fillRoundedRectangle(getLocalBounds().toFloat(), 6.0f);
-        g.setColour(juce::Colours::lightgrey);
+        g.setColour(outlineColour);
         g.drawRoundedRectangle(getLocalBounds().toFloat(), 6.0f, 1.0f);
 
         float w = (float)getWidth();
@@ -248,7 +252,7 @@ public:
         float usableW = w - 2.0f * margin;
         float usableH = h - 2.0f * margin;
 
-        g.setColour(juce::Colours::whitesmoke.darker(0.1f));
+        g.setColour(bgColour.contrasting(0.08f));
         g.drawVerticalLine(int(w / 2), margin, h - margin);
         g.drawHorizontalLine(int(h / 2), margin, w - margin);
 
@@ -289,7 +293,6 @@ public:
         g.setColour(juce::Colours::dodgerblue);
         g.strokePath(p, juce::PathStrokeType(2.5f));
 
-		// clip points
         float x1R, y1R, x1L, y1L;
         getClipPointCoords(threshold, w, h, x1R, y1R, x1L, y1L);
 
@@ -303,11 +306,8 @@ public:
         g.setColour(juce::Colours::white);
         g.fillEllipse(x1L - 3.0f, y1L - 3.0f, 6.0f, 6.0f);
 
-		// softness points
         float x2R, y2R, x2L, y2L;
         getSoftnessPointCoords(threshold, softPct, w, h, x2R, y2R, x2L, y2L);
-
-		// colour changes based on value
         juce::Colour softnessColor = (softVal > 0.0f) ? juce::Colours::limegreen : juce::Colours::dodgerblue;
 
         g.setColour(softnessColor);
@@ -320,7 +320,7 @@ public:
         g.setColour(juce::Colours::white);
         g.fillEllipse(x2L - 3.0f, y2L - 3.0f, 6.0f, 6.0f);
 
-        g.setColour(juce::Colours::darkgrey);
+        g.setColour(bgColour.contrasting(0.6f));
         g.setFont(12.0f);
         g.drawText("CLIPPING FUNCTION", 8, 4, 150, 20, juce::Justification::centredLeft);
     }

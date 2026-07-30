@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../PluginProcessor.h"
+#include "Themes.h"
 #include <vector>
 
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
@@ -19,11 +20,7 @@ public:
         startTimerHz(100);
     }
 
-    void timerCallback() override
-    {
-        // refreshing realtime
-        repaint();
-    }
+    void timerCallback() override { repaint(); }
 
     void mouseDown(const juce::MouseEvent& event) override
     {
@@ -32,7 +29,6 @@ public:
             isPaused = !isPaused;
             if (isPaused)
             {
-				// while in pause we copy the current waveform data to frozen arrays, i still don't get it much but it works
                 pausedHead = processor.waveformIndex.load();
                 for (int i = 0; i < processor.waveformSize; ++i)
                 {
@@ -46,18 +42,20 @@ public:
 
     void paint(juce::Graphics& g) override
     {
-        g.setColour(juce::Colours::whitesmoke);
+        auto bgColour = getLookAndFeel().findColour(BrightBlueStyle::panelBackgroundId);
+        auto outlineColour = getLookAndFeel().findColour(BrightBlueStyle::panelOutlineId);
+
+        g.setColour(bgColour);
         g.fillRoundedRectangle(getLocalBounds().toFloat(), 6.0f);
-        g.setColour(juce::Colours::lightgrey);
+        g.setColour(outlineColour);
         g.drawRoundedRectangle(getLocalBounds().toFloat(), 6.0f, 1.0f);
 
-        g.setColour(juce::Colours::darkgrey.withAlpha(0.2f));
+        g.setColour(bgColour.contrasting(0.08f));
         g.drawHorizontalLine(getHeight() / 2, 0.0f, (float)getWidth());
 
         float w = (float)getWidth();
         float h = (float)getHeight();
 
-        // current CLIP and SOFTNESS
         float clipVal = processor.apvts.getRawParameterValue("CLIP")->load();
         float clipPct = clipVal / 100.0f;
         float softVal = processor.apvts.getRawParameterValue("SOFTNESS")->load();
@@ -65,7 +63,6 @@ public:
 
         float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
-		// treshold lines
         float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
         float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
 
@@ -73,11 +70,9 @@ public:
         g.drawLine(0.0f, posThresholdY, w, posThresholdY, 1.0f);
         g.drawLine(0.0f, negThresholdY, w, negThresholdY, 1.0f);
 
-		// softness ceiling lines, only if softness and clip are above 0
         if (softVal > 0.0f && clipVal > 0.0f)
         {
             float ceiling = threshold + softPct * (1.0f - threshold);
-
             float posCeilingY = (h / 2.0f) - (ceiling * (h * 0.4f));
             float negCeilingY = (h / 2.0f) + (ceiling * (h * 0.4f));
 
@@ -87,7 +82,6 @@ public:
         }
 
         int size = processor.waveformSize;
-		// if frozen we use arrays, otherwise we use the live waveform data
         int head = isPaused ? pausedHead : processor.waveformIndex.load();
 
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.75f));
@@ -107,13 +101,13 @@ public:
             g.drawLine(x, yMin, x, yMax, 1.5f);
         }
 
-        g.setColour(juce::Colours::darkgrey);
+        g.setColour(bgColour.contrasting(0.6f));
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
 
         if (isPaused)
         {
-            g.setColour(juce::Colours::darkgrey);
+            g.setColour(bgColour.contrasting(0.8f));
             g.setFont(juce::FontOptions(16.0f, juce::Font::bold));
             g.drawText("PAUSED", getLocalBounds(), juce::Justification::centred, false);
         }

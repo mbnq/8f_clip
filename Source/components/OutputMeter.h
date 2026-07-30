@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../PluginProcessor.h"
+#include "Themes.h"
 
 class OutputMeterComponent : public juce::Component, public juce::Timer
 {
@@ -38,9 +39,13 @@ public:
 
     void paint(juce::Graphics& g) override
     {
-        g.setColour(juce::Colours::whitesmoke);
+        auto bgColour = getLookAndFeel().findColour(BrightBlueStyle::panelBackgroundId);
+        auto outlineColour = getLookAndFeel().findColour(BrightBlueStyle::panelOutlineId);
+        auto textColour = bgColour.contrasting(0.6f);
+
+        g.setColour(bgColour);
         g.fillRoundedRectangle(getLocalBounds().toFloat(), 6.0f);
-        g.setColour(juce::Colours::lightgrey);
+        g.setColour(outlineColour);
         g.drawRoundedRectangle(getLocalBounds().toFloat(), 6.0f, 1.0f);
 
         float h = (float)getHeight() - 38.0f;
@@ -50,8 +55,7 @@ public:
         float meterWidth = 14.0f;
         float meterX = (getWidth() - meterWidth) / 2.0f;
 
-        // db meter bckg
-        g.setColour(juce::Colours::lightgrey.withAlpha(0.5f));
+        g.setColour(outlineColour.withAlpha(0.5f));
         g.fillRoundedRectangle(meterX, 24.0f, meterWidth, h, 3.0f);
 
         juce::ColourGradient fillGradient(
@@ -63,38 +67,30 @@ public:
         );
         fillGradient.addColour(0.50, juce::Colours::green);
         fillGradient.addColour(0.85, juce::Colours::orange);
-        fillGradient.addColour(0.95, juce::Colours::red);      // -1 - 0 dB
+        fillGradient.addColour(0.95, juce::Colours::red);
 
         g.setGradientFill(fillGradient);
         g.fillRoundedRectangle(meterX, 24.0f + (h - fillHeight), meterWidth, fillHeight, 3.0f);
 
-        // peak indct
-        g.setColour(juce::Colours::darkgrey);
+        g.setColour(textColour);
         g.fillRect(meterX - 2.0f, 24.0f + (h - peakHeight), meterWidth + 4.0f, 2.0f);
 
-        // txt 
-        g.setColour(juce::Colours::darkgrey);
+        g.setColour(textColour);
         g.setFont(9.0f);
 
-        // 0 dB
         g.drawText("0dB", getWidth() / 2 - 15, 8, 30, 10, juce::Justification::centred);
 
-        // -1 dB
         float y_1 = 24.0f + (1.0f - 0.89125f) * h - 5.0f;
         g.drawText("-1", getWidth() / 2 - 15, (int)y_1, 30, 10, juce::Justification::centred);
 
-        // -3 dB
         float y_3 = 24.0f + (1.0f - 0.7079f) * h - 5.0f;
         g.drawText("-3", getWidth() / 2 - 15, (int)y_3, 30, 10, juce::Justification::centred);
 
-        // -6 dB
         g.drawText("-6", getWidth() / 2 - 15, (int)(24.0f + h * 0.5f - 5), 30, 10, juce::Justification::centred);
 
-        // -12
         float y_12 = 24.0f + (1.0f - 0.2512f) * h - 5.0f;
         g.drawText("-12", getWidth() / 2 - 15, (int)y_12, 30, 10, juce::Justification::centred);
 
-        // -inf
         g.drawText("-inf", getWidth() / 2 - 15, (int)(24.0f + h + 2), 30, 10, juce::Justification::centred);
     }
 

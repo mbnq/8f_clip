@@ -8,7 +8,6 @@
 #include "components/Themes.h"
 #include "components/LogoInfo.h"
 
-// main window
 class _8f_clipAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
@@ -17,11 +16,13 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
+    void setStyle(int styleIndex);
+
     void mouseDown(const juce::MouseEvent& event) override
     {
         if (event.mods.isRightButtonDown())
         {
-            ContextMenu::show(this, [this](int choice)
+            ContextMenu::show(this, currentStyle, [this](int choice)
                 {
                     if (choice == 1)
                     {
@@ -48,6 +49,12 @@ public:
                             }
                         }
                     }
+                    else if (choice >= 10 && choice <= 11)
+                    {
+                        int newStyle = choice - 10;
+                        setStyle(newStyle);
+                        audioProcessor.apvts.state.setProperty("uiStyle", newStyle, nullptr);
+                    }
                 });
         }
     }
@@ -55,7 +62,9 @@ public:
 private:
     _8f_clipAudioProcessor& audioProcessor;
 
-    BrightBlueStyle jasnyStyl;
+    BrightBlueStyle brightBlueStyle;
+    DarkRedStyle darkRedStyle;
+    int currentStyle = 0;
 
     juce::Slider gainSlider;
     juce::Slider clipSlider;
