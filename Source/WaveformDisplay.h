@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include <vector>
 
 class WaveformDisplayComponent : public juce::Component, public juce::Timer
 {
@@ -12,25 +13,35 @@ public:
         addAndMakeVisible(zoomSlider);
         zoomAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processor.apvts, "ZOOM", zoomSlider);
 
+        frozenMinHistory.resize(processor.waveformSize, 0.0f);
+        frozenMaxHistory.resize(processor.waveformSize, 0.0f);
+
         startTimerHz(100);
     }
 
     void timerCallback() override
     {
-        // Jeœli podgl¹d jest spauzowany, nie odœwie¿amy widoku fali (zamra¿amy klatkê)[cite: 27]
-        if (!isPaused)
-        {
-            repaint();
-        }
+        // Odœwie¿amy komponent ca³y czas, ¿eby linie i parametry reagowa³y na ¿ywo
+        repaint();
     }
 
-    // Obs³uga podwójnego klikniêcia mysz¹
     void mouseDown(const juce::MouseEvent& event) override
     {
         if (event.getNumberOfClicks() == 2)
         {
-            isPaused = !isPaused; // Prze³¹czamy stan pauzy[cite: 27]
-            repaint();            // Natychmiast odœwie¿amy, aby pokazaæ lub schowaæ napis PAUSED[cite: 27]
+            isPaused = !isPaused;
+            if (isPaused)
+            {
+                // W momencie w³¹czenia pauzy kopiujemy ca³¹ aktualn¹ historiê bufora do lokalnych tablic.
+                // Dziêki temu zamra¿amy obraz i nikt nam go nie nadpisze od lewej strony.
+                pausedHead = processor.waveformIndex.load();
+                for (int i = 0; i < processor.waveformSize; ++i)
+                {
+                    frozenMinHistory[i] = processor.waveMinHistory[i];
+                    frozenMaxHistory[i] = processor.waveMaxHistory[i];
+                }
+            }
+            repaint();
         }
     }
 
@@ -55,7 +66,7 @@ public:
 
         float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
-        // Pozycje niebieskich linii (prog clippera)
+        // Pozycje niebieskich linii (próg clippera)
         float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
         float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
 
@@ -64,10 +75,8 @@ public:
         g.drawLine(0.0f, negThresholdY, w, negThresholdY, 1.0f);
 
         // Rysowanie zielonych linii reprezentuj¹cych SOFTNESS
-        // Warunki: softness > 0 oraz clip > 0 (gdy clip == 0, próg jest na 1.0 i softness nie ma sensu)
         if (softVal > 0.0f && clipVal > 0.0f)
         {
-            // Ca³kowity sufit uwzglêdniaj¹cy softness (zgodny z formu³¹ w procesorze)
             float ceiling = threshold + softPct * (1.0f - threshold);
 
             float posCeilingY = (h / 2.0f) - (ceiling * (h * 0.4f));
@@ -79,7 +88,8 @@ public:
         }
 
         int size = processor.waveformSize;
-        int head = processor.waveformIndex.load();
+        // Jeœli zapauzowane, rysujemy z naszych skopiowanych, bezpiecznych tablic "frozen"
+        int head = isPaused ? pausedHead : processor.waveformIndex.load();
 
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.75f));
 
@@ -88,8 +98,8 @@ public:
             int idx = (head + i) % size;
             if (idx < 0 || idx >= size) continue;
 
-            float minSample = processor.waveMinHistory[idx];
-            float maxSample = processor.waveMaxHistory[idx];
+            float minSample = isPaused ? frozenMinHistory[idx] : processor.waveMinHistory[idx];
+            float maxSample = isPaused ? frozenMaxHistory[idx] : processor.waveMaxHistory[idx];
 
             float x = ((float)i / (float)size) * w;
             float yMin = (h / 2.0f) - (minSample * (h * 0.4f));
@@ -102,7 +112,6 @@ public:
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
 
-        // Jeœli aktywna jest pauza, rysujemy napis PAUSED na samym œrodku w ciemnoszarym kolorze
         if (isPaused)
         {
             g.setColour(juce::Colours::darkgrey);
@@ -128,4 +137,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> zoomAttachment;
 
     bool isPaused = false;
+    int pausedHead = 0;
+    std::vector<float> frozenMinHistory;
+    std::vector<float> frozenMaxHistory;
 };
