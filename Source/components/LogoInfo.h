@@ -15,8 +15,8 @@ public:
             };
         addAndMakeVisible(closeButton);
 
-        bandcampButton.setButtonText("https://oktafonika.bandcamp.com/");
-        bandcampButton.setURL(juce::URL("https://oktafonika.bandcamp.com/"));
+        bandcampButton.setButtonText("[https://oktafonika.bandcamp.com/](https://oktafonika.bandcamp.com/)");
+        bandcampButton.setURL(juce::URL("[https://oktafonika.bandcamp.com/](https://oktafonika.bandcamp.com/)"));
         bandcampButton.setColour(juce::HyperlinkButton::textColourId, juce::Colours::dodgerblue);
         addAndMakeVisible(bandcampButton);
     }
@@ -36,7 +36,7 @@ public:
         g.setFont(juce::FontOptions(13.0f));
         juce::String text =
             "8f Audio Clipper\n"
-            "Wersja: 0.4a 2026"                      // + juce::String(JucePlugin_VersionString) + " FREEWARE 2026\n\n"
+            "Wersja: 0.4a 2026\n\n"
             "Author: Mateusz \"Oktafonika\" Bieniek\n"
             "Email: mateuszbnk@gmail.com\n\n"
             "Support me by buying my music here:";
@@ -60,7 +60,12 @@ private:
 class LogoComponent : public juce::Component
 {
 public:
-    LogoComponent() = default;
+    LogoComponent()
+    {
+        // Konfiguracja cienia pod logo
+        shadowEffect.setShadowProperties(juce::DropShadow(juce::Colours::black.withAlpha(0.25f), 6, { 0, 2 }));
+        setComponentEffect(&shadowEffect);
+    }
 
     void paint(juce::Graphics& g) override
     {
@@ -87,7 +92,7 @@ public:
     {
         if (event.mods.isRightButtonDown())
         {
-            juce::URL("https://oktafonika.bandcamp.com/").launchInDefaultBrowser();
+            juce::URL("[https://oktafonika.bandcamp.com/](https://oktafonika.bandcamp.com/)").launchInDefaultBrowser();
         }
         else
         {
@@ -111,4 +116,7 @@ public:
             }
         }
     }
+
+private:
+    juce::DropShadowEffect shadowEffect;
 };
