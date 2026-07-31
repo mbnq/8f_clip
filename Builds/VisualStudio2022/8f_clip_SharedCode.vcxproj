@@ -5420,5 +5420,9 @@
   <ItemGroup>
     <Text Include="source_notes.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\screenshots\bright0.png" />
+    <Image Include="..\..\..\screenshots\dark0.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
