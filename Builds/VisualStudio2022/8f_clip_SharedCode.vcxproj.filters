@@ -991,6 +991,9 @@
     <Filter Include="8f_clip\Source\components">
       <UniqueIdentifier>{54c8fd9a-67f7-4030-aa99-daf06a3064a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="8f_clip\screenshots">
+      <UniqueIdentifier>{2492fe39-1fc3-47a6-97bb-7602f5d513e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp">
@@ -10071,5 +10074,16 @@
     <Text Include="source_notes.txt">
       <Filter>8f_clip\Source</Filter>
     </Text>
+    <Text Include="..\..\..\license.txt">
+      <Filter>8f_clip</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\screenshots\bright0.png">
+      <Filter>8f_clip\screenshots</Filter>
+    </Image>
+    <Image Include="..\..\..\screenshots\dark0.png">
+      <Filter>8f_clip\screenshots</Filter>
+    </Image>
   </ItemGroup>
 </Project>

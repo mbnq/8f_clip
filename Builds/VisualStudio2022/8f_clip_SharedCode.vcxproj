@@ -5418,7 +5418,12 @@
     <None Include="..\..\JuceLibraryCode\modules\juce_javascript\choc\LICENSE.md" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\..\..\license.txt" />
     <Text Include="source_notes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\screenshots\bright0.png" />
+    <Image Include="..\..\..\screenshots\dark0.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
