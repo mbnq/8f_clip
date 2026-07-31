@@ -53,7 +53,7 @@ This project is source-available under a custom non-commercial-sale license.
 * **Restricted:** Selling this software, its compiled binaries, or repackaging it as a paid product is **strictly prohibited**.
 * **Branding:** The names **"8f"** and **"Oktafonika"** are protected artistic properties.
 
-See the [LICENSE](LICENSE.txt) file for full details.
+See the [LICENSE](license.txt) file for full details.
 
 ---
 
