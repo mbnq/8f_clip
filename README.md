@@ -1,6 +1,6 @@
 # 8f_clip
 
-**8f_clip** is a modern, high-performance audio clipping plugin developed by **Oktafonika**. Built using the JUCE framework, it features a clean vector interface, real-time waveform history, and an interactive transfer function graph designed for precision audio processing.
+**8f_clip** is a simple, 0-latency audio clipping plugin. Built using the JUCE framework, it features a clean vector interface, real-time waveform history, resizing, and an interactive transfer function graph designed for quick and precision audio processing.
 
 ---
 
