@@ -2,6 +2,8 @@
 
 **8f_clip** is a simple, 0-latency audio clipping plugin. Built using the JUCE framework, it features a clean vector interface, real-time waveform history, resizing, and an interactive transfer function graph designed for quick and precision audio processing.
 
+💾 [DOWNLOAD](https://github.com/mbnq/8f_clip_current/releases/download/v0.6b/8f_clip_0_6b_VST3_WIN_x64.zip) ⬇️
+
 ---
 
 ## 🎨 Themes / Interfaces
