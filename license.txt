@@ -1,0 +1,30 @@
+Copyright (c) 2026 Mateusz "Oktafonika" Bieniek
+All rights reserved.
+
+1. Trademarks and Protected Branding
+The names "8f" and "Oktafonika" are protected artistic marks, brand names, and copyrights. 
+Nothing in this License grants any rights to use these specific names, logos, or branding 
+to endorse, market, or brand derivative works or commercial products without explicit 
+prior written permission from the author.
+
+2. Permitted Use and Modifications
+You are granted the right to:
+- View, copy, study, and modify the source code of this software.
+- Use the software and its modified versions for personal and commercial purposes.
+
+3. Restriction on Sale
+You are strictly PROHIBITED from selling this software, its compiled binaries, or any 
+direct commercial repackaging of the plugin for a financial fee or as a paid product.
+
+4. Donations and Support
+While commercial use and modifications are free of charge, supporting the original 
+creator through donations via Bandcamp (https://oktafonika.bandcamp.com/) is greatly 
+appreciated and helps support future projects.
+
+5. Disclaimer of Warranty
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

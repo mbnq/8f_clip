@@ -1,6 +1,6 @@
 # 8f_clip
 
-**8f_clip** is a modern, high-performance audio clipping plugin developed by **Oktafonika**. Built using the JUCE framework, it features a clean vector interface, real-time waveform history, and an interactive transfer function graph designed for precision audio processing.
+**8f_clip** is a simple, 0-latency audio clipping plugin. Built using the JUCE framework, it features a clean vector interface, real-time waveform history, resizing, and an interactive transfer function graph designed for quick and precision audio processing.
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Bright Blue Theme | Dark Red Theme |
 | :---: | :---: |
-| ![Bright Blue](screenshots/bright0.png) | ![Dark Red](screenshots/dark0.png) |
+| ![Bright Blue](bright0.png) | ![Dark Red](dark0.png) |
 
 ---
 
@@ -53,7 +53,7 @@ This project is source-available under a custom non-commercial-sale license.
 * **Restricted:** Selling this software, its compiled binaries, or repackaging it as a paid product is **strictly prohibited**.
 * **Branding:** The names **"8f"** and **"Oktafonika"** are protected artistic properties.
 
-See the [LICENSE](LICENSE.txt) file for full details.
+See the [LICENSE](license.txt) file for full details.
 
 ---
 
