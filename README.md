@@ -9,7 +9,7 @@
 
 | Bright Blue Theme | Dark Red Theme |
 | :---: | :---: |
-| ![Bright Blue](screenshots/bright0.png) | ![Dark Red](screenshots/dark0.png) |
+| ![Bright Blue](bright0.png) | ![Dark Red](dark0.png) |
 
 ---
 
