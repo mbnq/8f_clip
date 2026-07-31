@@ -5418,6 +5418,7 @@
     <None Include="..\..\JuceLibraryCode\modules\juce_javascript\choc\LICENSE.md" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\..\..\license.txt" />
     <Text Include="source_notes.txt" />
   </ItemGroup>
   <ItemGroup>
