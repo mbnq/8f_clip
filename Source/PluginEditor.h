@@ -8,7 +8,7 @@
 #include "components/Themes.h"
 #include "components/LogoInfo.h"
 
-class _8f_clipAudioProcessorEditor : public juce::AudioProcessorEditor
+class _8f_clipAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     _8f_clipAudioProcessorEditor(_8f_clipAudioProcessor&);
@@ -84,6 +84,8 @@ private:
     OutputMeterComponent outputMeter;
 
     LogoComponent logoComponent;
+
+    void timerCallback() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(_8f_clipAudioProcessorEditor)
 };

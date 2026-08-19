@@ -4,7 +4,7 @@
 _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p), transferGraph(p), waveformDisplay(p), outputMeter(p)
 {
-    int savedStyle = audioProcessor.apvts.state.getProperty("uiStyle", 0);
+    int savedStyle = audioProcessor.apvts.state.getProperty("uiStyle", 1);
     setStyle(savedStyle);
 
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -49,10 +49,16 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     addAndMakeVisible(logoComponent);
 
     setResizable(true, true);
-    setResizeLimits(550, 400, 4096, 2560);
+    
+    constexpr int minWidth = 550;
+    constexpr int minHeight = 400;
+    constexpr int maxWidth = 4096;
+    constexpr int maxHeight = 2560;
+    
+    setResizeLimits(minWidth, minHeight, maxWidth, maxHeight);
 
-    int savedWidth = audioProcessor.apvts.state.getProperty("uiWidth", 680);
-    int savedHeight = audioProcessor.apvts.state.getProperty("uiHeight", 500);
+    int savedWidth = juce::jlimit(minWidth, maxWidth, static_cast<int>(audioProcessor.apvts.state.getProperty("uiWidth", 680)));
+    int savedHeight = juce::jlimit(minHeight, maxHeight, static_cast<int>(audioProcessor.apvts.state.getProperty("uiHeight", 500)));
     setSize(savedWidth, savedHeight);
 }
 
@@ -119,4 +125,14 @@ void _8f_clipAudioProcessorEditor::resized()
 
     transferGraph.setBounds(displayArea.removeFromTop(halfHeight).reduced(0, 4));
     waveformDisplay.setBounds(displayArea.reduced(0, 4));
+
+    // Debounced save: start/restart a timer to persist UI size after resizing stops
+    startTimer(500);
+}
+
+void _8f_clipAudioProcessorEditor::timerCallback()
+{
+    stopTimer();
+    audioProcessor.apvts.state.setProperty("uiWidth", getWidth(), nullptr);
+    audioProcessor.apvts.state.setProperty("uiHeight", getHeight(), nullptr);
 }
