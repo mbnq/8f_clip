@@ -7,6 +7,9 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     int savedStyle = audioProcessor.apvts.state.getProperty("uiStyle", 1);
     setStyle(savedStyle);
 
+    isTransferGraphHidden = audioProcessor.apvts.state.getProperty("transferGraphHidden", false);
+    isOutputMeterHidden = audioProcessor.apvts.state.getProperty("outputMeterHidden", false);
+
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     gainSlider.setTextValueSuffix(" dB");
@@ -117,16 +120,34 @@ void _8f_clipAudioProcessorEditor::resized()
     area.removeFromBottom(15);
 
     int meterWidth = 70;
-    outputMeter.setBounds(area.removeFromRight(meterWidth));
-    area.removeFromRight(15);
+    if (!isOutputMeterHidden)
+    {
+        auto meterBounds = area.removeFromRight(meterWidth);
+        meterBounds = meterBounds.reduced(0, 4);
+        outputMeter.setBounds(meterBounds);
+        outputMeter.setVisible(true);
+        area.removeFromRight(15);
+    }
+    else
+    {
+        outputMeter.setVisible(false);
+    }
 
     auto displayArea = area;
     int halfHeight = displayArea.getHeight() / 2;
 
-    transferGraph.setBounds(displayArea.removeFromTop(halfHeight).reduced(0, 4));
-    waveformDisplay.setBounds(displayArea.reduced(0, 4));
+    if (isTransferGraphHidden)
+    {
+        transferGraph.setVisible(false);
+        waveformDisplay.setBounds(displayArea.reduced(0, 4));
+    }
+    else
+    {
+        transferGraph.setVisible(true);
+        transferGraph.setBounds(displayArea.removeFromTop(halfHeight).reduced(0, 4));
+        waveformDisplay.setBounds(displayArea.reduced(0, 4));
+    }
 
-    // Debounced save: start/restart a timer to persist UI size after resizing stops
     startTimer(500);
 }
 
@@ -135,4 +156,6 @@ void _8f_clipAudioProcessorEditor::timerCallback()
     stopTimer();
     audioProcessor.apvts.state.setProperty("uiWidth", getWidth(), nullptr);
     audioProcessor.apvts.state.setProperty("uiHeight", getHeight(), nullptr);
+    audioProcessor.apvts.state.setProperty("transferGraphHidden", isTransferGraphHidden, nullptr);
+    audioProcessor.apvts.state.setProperty("outputMeterHidden", isOutputMeterHidden, nullptr);
 }
