@@ -47,7 +47,7 @@ public:
             "8f Audio Clipper\n"
             "Version: 0.74 2026\n\n"
             "Author: Mateusz \"Oktafonika\" Bieniek\n"
-            "Email: mateuszbnk@gmail.com\n\n"
+            "Email: mateuszbnk@gmail.com \n\n"
             "Support me by buying my music here:";
 
         g.drawMultiLineText(text, 20, 58, getWidth() - 40, juce::Justification::centredLeft);
