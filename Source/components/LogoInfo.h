@@ -45,7 +45,7 @@ public:
         g.setFont(juce::FontOptions(13.0f));
         juce::String text =
             "8f Audio Clipper\n"
-            "Version: 0.72 2026\n\n"
+            "Version: 0.74 2026\n\n"
             "Author: Mateusz \"Oktafonika\" Bieniek\n"
             "Email: mateuszbnk@gmail.com\n\n"
             "Support me by buying my music here:";
