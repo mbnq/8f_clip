@@ -8,7 +8,7 @@
 #include "components/Themes.h"
 #include "components/LogoInfo.h"
 
-class _8f_clipAudioProcessorEditor : public juce::AudioProcessorEditor
+class _8f_clipAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     _8f_clipAudioProcessorEditor(_8f_clipAudioProcessor&);
@@ -22,7 +22,7 @@ public:
     {
         if (event.mods.isRightButtonDown())
         {
-            ContextMenu::show(this, currentStyle, [this](int choice)
+            ContextMenu::show(this, currentStyle, !isTransferGraphHidden, !isOutputMeterHidden, [this](int choice)
                 {
                     if (choice == 1)
                     {
@@ -48,6 +48,20 @@ public:
                                 aboutBox->toFront(true);
                             }
                         }
+                    }
+                    else if (choice == 20)
+                    {
+                        isTransferGraphHidden = !isTransferGraphHidden;
+                        audioProcessor.apvts.state.setProperty("transferGraphHidden", isTransferGraphHidden, nullptr);
+                        resized();
+                        repaint();
+                    }
+                    else if (choice == 21)
+                    {
+                        isOutputMeterHidden = !isOutputMeterHidden;
+                        audioProcessor.apvts.state.setProperty("outputMeterHidden", isOutputMeterHidden, nullptr);
+                        resized();
+                        repaint();
                     }
                     else if (choice >= 10 && choice <= 11)
                     {
@@ -84,6 +98,11 @@ private:
     OutputMeterComponent outputMeter;
 
     LogoComponent logoComponent;
+
+    void timerCallback() override;
+
+    bool isTransferGraphHidden = false;
+    bool isOutputMeterHidden = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(_8f_clipAudioProcessorEditor)
 };

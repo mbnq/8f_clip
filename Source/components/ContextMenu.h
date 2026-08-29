@@ -31,7 +31,7 @@ public:
 class ContextMenu
 {
 public:
-    static void show(juce::Component* parentComponent, int currentStyleIndex, std::function<void(int)> callback)
+    static void show(juce::Component* parentComponent, int currentStyleIndex, bool showClippingFnc, bool showMeter, std::function<void(int)> callback)
     {
         juce::PopupMenu m;
         m.addItem(1, "Reset Window Size");
@@ -41,6 +41,11 @@ public:
         styleMenu.addItem(11, "Dark Red", true, currentStyleIndex == 1);
         m.addSubMenu("Change Style", styleMenu);
 
+        m.addSeparator();
+        m.addItem(20, showClippingFnc ? "Hide Clipping Fnc" : "Show Clipping Fnc");
+        m.addItem(21, showMeter ? "Hide DB Meter" : "Show DB Meter");
+
+        m.addSeparator();
         m.addItem(2, "About");
 
         static ContextMenuLookAndFeel menuLookAndFeel(currentStyleIndex);

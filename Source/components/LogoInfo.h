@@ -9,15 +9,25 @@ public:
         closeButton.setButtonText("CLOSE");
         closeButton.onClick = [this]() {
             if (auto* parent = getParentComponent())
+            {
                 parent->removeChildComponent(this);
+            }
             delete this;
-            };
+        };
         addAndMakeVisible(closeButton);
 
         bandcampButton.setButtonText("https://oktafonika.bandcamp.com/");
         bandcampButton.setURL(juce::URL("https://oktafonika.bandcamp.com/"));
         bandcampButton.setColour(juce::HyperlinkButton::textColourId, juce::Colours::dodgerblue);
         addAndMakeVisible(bandcampButton);
+    }
+
+    ~AboutBoxComponent() override
+    {
+        if (auto* parent = getParentComponent())
+        {
+            parent->removeChildComponent(this);
+        }
     }
 
     void paint(juce::Graphics& g) override
@@ -35,7 +45,7 @@ public:
         g.setFont(juce::FontOptions(13.0f));
         juce::String text =
             "8f Audio Clipper\n"
-            "Wersja: 0.6b 2026\n\n"
+            "Wersja: 0.72 2026\n\n"
             "Author: Mateusz \"Oktafonika\" Bieniek\n"
             "Email: mateuszbnk@gmail.com\n\n"
             "Support me by buying my music here:";
