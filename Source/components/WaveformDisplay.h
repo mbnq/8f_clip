@@ -105,6 +105,60 @@ public:
         g.setFont(12.0f);
         g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
 
+        const float scalePad = juce::jlimit(18.0f, 42.0f, w * 0.12f);
+        const float scaleLeft = w - scalePad;
+        const float scaleFontSize = juce::jlimit(8.0f, 11.0f, h * 0.018f);
+
+        float centerY = h / 2.0f;
+        float scaleHeight = h * 0.4f;
+        float scaleTop = centerY - scaleHeight;
+        float scaleBottom = centerY + scaleHeight;
+
+        g.setColour(bgColour.contrasting(0.18f));
+        g.drawVerticalLine((int)scaleLeft, (int)scaleTop, (int)scaleBottom);
+
+        const auto drawDbScale = [&](const std::initializer_list<float>& dbValues)
+        {
+            for (float dbValue : dbValues)
+            {
+                float linearAmplitude = juce::Decibels::decibelsToGain(dbValue);
+                
+                // Upper half (positive/top)
+                const float yTop = centerY - (linearAmplitude * scaleHeight);
+                g.setColour(bgColour.contrasting(0.2f));
+                g.drawLine(scaleLeft, yTop, w - 4.0f, yTop, 1.0f);
+
+                // Lower half (negative/bottom) - mirrored
+                const float yBottom = centerY + (linearAmplitude * scaleHeight);
+                g.drawLine(scaleLeft, yBottom, w - 4.0f, yBottom, 1.0f);
+
+                const char* label = "";
+                if (dbValue == 0.0f) label = "0dB";
+                else if (dbValue == -3.0f) label = "-3";
+                else if (dbValue == -6.0f) label = "-6";
+                else if (dbValue == -12.0f) label = "-12";
+                else if (dbValue == -24.0f) label = "-24";
+                else if (dbValue == -60.0f) label = "-inf";
+
+                if (label[0] != '\0')
+                {
+                    g.setColour(bgColour.contrasting(0.55f));
+                    g.setFont(scaleFontSize);
+                    // Label for top half
+                    g.drawText(label, scaleLeft - 28.0f, yTop - 6.0f, 24.0f, 12.0f, juce::Justification::right);
+                    // Label for bottom half
+                    g.drawText(label, scaleLeft - 28.0f, yBottom - 6.0f, 24.0f, 12.0f, juce::Justification::right);
+                }
+            }
+        };
+
+        if (h < 110.0f)
+            drawDbScale({ 0.0f, -12.0f, -24.0f, -60.0f });
+        else if (h < 150.0f)
+            drawDbScale({ 0.0f, -6.0f, -12.0f, -24.0f, -60.0f });
+        else
+            drawDbScale({ 0.0f, -3.0f, -6.0f, -12.0f, -24.0f, -60.0f });
+
         if (isPaused)
         {
             g.setColour(bgColour.contrasting(0.8f));
