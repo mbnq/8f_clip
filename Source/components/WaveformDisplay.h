@@ -63,8 +63,14 @@ public:
 
         float threshold = juce::jmax(0.01f, 1.0f - clipPct);
 
-        float posThresholdY = (h / 2.0f) - (threshold * (h * 0.4f));
-        float negThresholdY = (h / 2.0f) + (threshold * (h * 0.4f));
+        const float topMargin = 26.0f;
+        const float bottomMargin = 24.0f;
+        const float availableHeight = h - topMargin - bottomMargin;
+        const float scaleHeight = availableHeight / 2.0f;
+        const float centerY = topMargin + availableHeight / 2.0f;
+
+        float posThresholdY = centerY - (threshold * scaleHeight);
+        float negThresholdY = centerY + (threshold * scaleHeight);
 
         g.setColour(juce::Colours::dodgerblue.withAlpha(0.6f));
         g.drawLine(0.0f, posThresholdY, w, posThresholdY, 1.0f);
@@ -73,8 +79,8 @@ public:
         if (softVal > 0.0f && clipVal > 0.0f)
         {
             float ceiling = threshold + softPct * (1.0f - threshold);
-            float posCeilingY = (h / 2.0f) - (ceiling * (h * 0.4f));
-            float negCeilingY = (h / 2.0f) + (ceiling * (h * 0.4f));
+            float posCeilingY = centerY - (ceiling * scaleHeight);
+            float negCeilingY = centerY + (ceiling * scaleHeight);
 
             g.setColour(juce::Colours::limegreen.withAlpha(0.7f));
             g.drawLine(0.0f, posCeilingY, w, posCeilingY, 1.0f);
@@ -95,22 +101,20 @@ public:
             float maxSample = isPaused ? frozenMaxHistory[idx] : processor.waveMaxHistory[idx];
 
             float x = ((float)i / (float)size) * w;
-            float yMin = (h / 2.0f) - (minSample * (h * 0.4f));
-            float yMax = (h / 2.0f) - (maxSample * (h * 0.4f));
+            float yMin = centerY - (minSample * scaleHeight);
+            float yMax = centerY - (maxSample * scaleHeight);
 
             g.drawLine(x, yMin, x, yMax, 1.5f);
         }
 
         g.setColour(bgColour.contrasting(0.6f));
         g.setFont(12.0f);
-        g.drawText("OUTPUT WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
+        g.drawText("WAVEFORM", 8, 4, 150, 20, juce::Justification::left);
 
         const float scalePad = juce::jlimit(18.0f, 42.0f, w * 0.12f);
         const float scaleLeft = w - scalePad;
         const float scaleFontSize = juce::jlimit(8.0f, 11.0f, h * 0.018f);
 
-        float centerY = h / 2.0f;
-        float scaleHeight = h * 0.4f;
         float scaleTop = centerY - scaleHeight;
         float scaleBottom = centerY + scaleHeight;
 

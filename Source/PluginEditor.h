@@ -101,8 +101,8 @@ private:
 
     void timerCallback() override;
 
-    bool isTransferGraphHidden = false;
-    bool isOutputMeterHidden = false;
+    bool isTransferGraphHidden = true;
+    bool isOutputMeterHidden = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(_8f_clipAudioProcessorEditor)
 };

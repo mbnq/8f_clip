@@ -7,8 +7,8 @@ _8f_clipAudioProcessorEditor::_8f_clipAudioProcessorEditor(_8f_clipAudioProcesso
     int savedStyle = audioProcessor.apvts.state.getProperty("uiStyle", 1);
     setStyle(savedStyle);
 
-    isTransferGraphHidden = audioProcessor.apvts.state.getProperty("transferGraphHidden", false);
-    isOutputMeterHidden = audioProcessor.apvts.state.getProperty("outputMeterHidden", false);
+    isTransferGraphHidden = audioProcessor.apvts.state.getProperty("transferGraphHidden", true);
+    isOutputMeterHidden = audioProcessor.apvts.state.getProperty("outputMeterHidden", true);
 
     gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
